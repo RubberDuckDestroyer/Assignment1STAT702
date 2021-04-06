@@ -7,22 +7,17 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+#1 Analysis of Sales Data
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+##(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 – September 2013. Present your results in an appropriate plot and write 2 – 3 sentences describing your results.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Hint: This will require some “wrangling” of the variable week. To do this, format week as a date and then use the appropriate lubridate function to extract the month.
 
-```{r cars}
-summary(cars)
-```
+Marking Criteria
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+ *  Total monthly sales have been correctly computed and are displayed in an appropriate plot.
+ 
+ *  Description of results/plot is correct and provides useful insights.
+ 
+ *  Plot is constructed using ggplot2 and has appropriate titles, labels, scales etc.
+ 
