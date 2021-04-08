@@ -95,33 +95,80 @@ Marking criteria
 * Descriptions of results and plots are correct and provides useful insights.
 
 ```{r}
+# Summarise by year
 sales_data %>% 
-        filter(sku_id == 219844) %>%
-        mutate(week = as_date(week, format = "%d/%m/%y"),
-               date = format(week, "%m/%y"),
-               date = my(date),
-               year = year(date),
-               store_id = as.character(store_id))%>%
-        group_by(year, store_id) %>%
-        summarise(total_units_sold = sum(units_sold)) -> sales_summary_2
+  filter(sku_id == 219844) %>%
+  mutate(week = as_date(week, format = "%d/%m/%y"),
+         date = format(week, "%m/%y"),
+         date = my(date),
+         year = year(date),
+         quarter = quarter(date),
+         store_id = as.character(store_id))%>%
+  group_by(year, store_id, date) %>%
+  summarise(total_units_sold = sum(units_sold)) -> sales_summary_2
 
+# Summarise by quarter
+
+sales_summary_2 %>%
+  mutate(quarter = quarter(date)) %>%
+  unite("quarter", year, quarter, remove = FALSE, sep = "/") %>% 
+  group_by(quarter, store_id) %>% 
+  summarise(total_units_sold = sum(total_units_sold)) -> sales_summary_q
+
+```
+
+
+```{r}
+# Calculate quarterly quantiles
+quartiles <- summary(sales_summary_q$total_units_sold)
+q1 <- quartiles[2]
+q3 <- quartiles[5]
+
+
+```
+
+```{r}
+# Quarterly plots for each store with colour based on performance
+# low is less than q1
+# high is greater than q3
+
+sales_summary_q %>%
+  mutate(performance = ifelse(total_units_sold < q1, "Low", (ifelse(total_units_sold > q3, "High", "Average")))) %>%
+  ggplot()+
+  geom_point(aes(x = quarter, y = total_units_sold, colour = performance)) + 
+  facet_wrap(~ store_id, ncol = 6) +
+  scale_colour_manual(values = c("#80CAFF", "#4BC979", "#E76F51"))
+
+# Quarterly axis is not good
+
+```
+
+
+```{r}
+# Plots not used
+
+# summarise by year
 sales_summary_2 %>%
         ggplot() + 
         geom_point(aes(x = store_id, y = total_units_sold, colour = year))
 
 sales_summary_2 %>% 
         ggplot()+
-        geom_point(aes(x = year, y = total_units_sold, colour = store_id))
+        geom_point(aes(x = date, y = total_units_sold, colour = store_id))
 
 sales_summary_2 %>% 
         ggplot()+
-        geom_point(aes(x = date, y = total_units_sold)) + facet_wrap(~store_id)
+        geom_point(aes(x = date, y = total_units_sold)) + facet_wrap(~ store_id, ncol = 6)
         
-```
+# summarise by quarter
+
+sales_summary_q %>% 
+        ggplot()+
+        geom_point(aes(x = quarter, y = total_units_sold)) + facet_wrap(~ store_id, ncol = 6)
+
+sales_summary_q %>% 
+        ggplot()+
+        geom_point(aes(x = quarter, y = total_units_sold, colour = store_id))
 
 
-```{r}
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy)) + 
-  facet_wrap(~ class, nrow = 2)
 ```
