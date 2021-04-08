@@ -6,10 +6,14 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+Product name: BIC Round Stic Xtra Life Ballpoint Pen, Medium Point (1.0mm), Red, 12-Count
+Sales sku_id: 219884
+Reviews asin: B00006IE7J 
+
 
 #1 Analysis of Sales Data
 
-##(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 – September 2013. Present your results in an appropriate plot and write 2 – 3 sentences describing your results.
+## 1(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 – September 2013. Present your results in an appropriate plot and write 2 – 3 sentences describing your results.
 
 Hint: This will require some “wrangling” of the variable week. To do this, format week as a date and then use the appropriate lubridate function to extract the month.
 
@@ -38,11 +42,68 @@ sales_data <- as_tibble(sales_data)
 ```
 
 ```{r}
-# Subset data lines with sku_id == 219844
+# Create a summary table, grouped by month and year (single column with m/y)
 
-sales_219844 %>% 
-        filter(sku_id == 219844) %>% 
-        mutate(date = as_date(week, format = "%d/%m/%y"))-> sales_data_2
+sales_data %>% 
+        filter(sku_id == 219844) %>%
+        mutate(week = as_date(week, format = "%d/%m/%y"),
+               date = format(week, "%m/%y"),
+               date = my(date)) %>% 
+        group_by(date) %>%
+        summarise(total_units_sold = sum(units_sold))-> sales_summary
 
 
-``` 
+# Scatterplot of monthly sales
+
+ggplot(sales_summary) +
+        geom_point(aes(x = date, y = total_units_sold)) +
+        xlab("Date") +
+        ylab("Units Sold") +
+        ggtitle("Monthly sales of product (sku_id 219844)")
+
+
+# # Print the summary, displaying month and year in separate columns
+# 
+# sales_summary %>% 
+#         mutate(month = month(date, label = TRUE), year = (year(date))) %>%
+#         select(month, year, total_units_sold) %>% view()
+
+```
+
+
+```{r}
+# Compute basic stats
+summary(sales_summary$total_units_sold)
+
+```
+
+Mean monthly sales are 3175. Outlier of 8871 sales in Jan 2012, minimum observation is 1897 in March 2012. 50% of observations lie between the values 2622 (first quartile) and 3302 (third quartile). No seasonal variation or trend identified.
+
+
+## 1(b) The GM Sales wants to know which stores are performing well and which are not, in terms of product sales. For the product (sku_id) which has been assigned to your group, use appropriate summary statistics and plots to investigate sales performance across the stores and write 2 – 3 paragraphs summarising your findings.
+
+Hint: You will need to decide what it means for a store to be “performing well” and how you will evaluate this using the data.
+
+Marking criteria
+
+* Sales performance is clearly defined.
+
+* Written summary includes relevant and appropriate summary statistics and plots.
+
+* Plot/s are constructed using ggplot2 and have appropriate titles, labels, scales etc.
+
+* Descriptions of results and plots are correct and provides useful insights.
+
+```{r}
+sales_data %>% 
+        filter(sku_id == 219844) %>%
+        mutate(week = as_date(week, format = "%d/%m/%y"),
+               date = format(week, "%m/%y"),
+               date = my(date)) %>%
+        group_by(date, store_id) %>%
+        summarise(total_units_sold = sum(units_sold)) %>% 
+        ggplot() + 
+        geom_point(aes(x = date, y = total_units_sold, colour = store_id))
+        
+
+```
