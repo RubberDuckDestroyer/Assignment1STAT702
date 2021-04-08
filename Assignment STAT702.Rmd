@@ -21,3 +21,28 @@ Marking Criteria
  
  *  Plot is constructed using ggplot2 and has appropriate titles, labels, scales etc.
  
+```{r}
+# Load libraries
+library(tidyverse)
+library(lubridate)
+
+```
+
+```{r}
+# Read in data and convert to tibbles
+reviews_data <- read.csv("reviews_data.csv")
+reviews_data <- as_tibble(reviews_data)
+
+sales_data <- read.csv("sales_data.csv")
+sales_data <- as_tibble(sales_data)
+```
+
+```{r}
+# Subset data lines with sku_id == 219844
+
+sales_219844 %>% 
+        filter(sku_id == 219844) %>% 
+        mutate(date = as_date(week, format = "%d/%m/%y"))-> sales_data_2
+
+
+``` 
