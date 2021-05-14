@@ -1,30 +1,36 @@
 ---
 title: "Assignment STAT702"
 output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-Product name: BIC Round Stic Xtra Life Ballpoint Pen, Medium Point (1.0mm), Red, 12-Count
-Sales sku_id: 219884
-Reviews asin: B00006IE7J 
 
+Product name: BIC Round Stic Xtra Life Ballpoint Pen, Medium Point
+(1.0mm), Red, 12-Count Sales sku_id: 219884 Reviews asin: B00006IE7J
 
-#1 Analysis of Sales Data
+\#1 Analysis of Sales Data
 
-## 1(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 – September 2013. Present your results in an appropriate plot and write 2 – 3 sentences describing your results.
+## 1(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 -- September 2013. Present your results in an appropriate plot and write 2 -- 3 sentences describing your results.
 
-Hint: This will require some “wrangling” of the variable week. To do this, format week as a date and then use the appropriate lubridate function to extract the month.
+Hint: This will require some "wrangling" of the variable week. To do
+this, format week as a date and then use the appropriate lubridate
+function to extract the month.
 
 Marking Criteria
 
- *  Total monthly sales have been correctly computed and are displayed in an appropriate plot.
- 
- *  Description of results/plot is correct and provides useful insights.
- 
- *  Plot is constructed using ggplot2 and has appropriate titles, labels, scales etc.
- 
+-   Total monthly sales have been correctly computed and are displayed
+    in an appropriate plot.
+
+-   Description of results/plot is correct and provides useful insights.
+
+-   Plot is constructed using ggplot2 and has appropriate titles,
+    labels, scales etc.
+
 ```{r}
 # Load libraries
 library(tidyverse)
@@ -70,29 +76,34 @@ ggplot(sales_summary) +
 
 ```
 
-
 ```{r}
 # Compute basic stats
 summary(sales_summary$total_units_sold)
 
 ```
 
-Mean monthly sales are 3175. Outlier of 8871 sales in Jan 2012, minimum observation is 1897 in March 2012. 50% of observations lie between the values 2622 (first quartile) and 3302 (third quartile). No seasonal variation or trend identified.
+Mean monthly sales are 3175. Outlier of 8871 sales in Jan 2012, minimum
+observation is 1897 in March 2012. 50% of observations lie between the
+values 2622 (first quartile) and 3302 (third quartile). No seasonal
+variation or trend identified.
 
+## 1(b) The GM Sales wants to know which stores are performing well and which are not, in terms of product sales. For the product (sku_id) which has been assigned to your group, use appropriate summary statistics and plots to investigate sales performance across the stores and write 2 -- 3 paragraphs summarising your findings.
 
-## 1(b) The GM Sales wants to know which stores are performing well and which are not, in terms of product sales. For the product (sku_id) which has been assigned to your group, use appropriate summary statistics and plots to investigate sales performance across the stores and write 2 – 3 paragraphs summarising your findings.
-
-Hint: You will need to decide what it means for a store to be “performing well” and how you will evaluate this using the data.
+Hint: You will need to decide what it means for a store to be
+"performing well" and how you will evaluate this using the data.
 
 Marking criteria
 
-* Sales performance is clearly defined.
+-   Sales performance is clearly defined.
 
-* Written summary includes relevant and appropriate summary statistics and plots.
+-   Written summary includes relevant and appropriate summary statistics
+    and plots.
 
-* Plot/s are constructed using ggplot2 and have appropriate titles, labels, scales etc.
+-   Plot/s are constructed using ggplot2 and have appropriate titles,
+    labels, scales etc.
 
-* Descriptions of results and plots are correct and provides useful insights.
+-   Descriptions of results and plots are correct and provides useful
+    insights.
 
 ```{r}
 # Summarise by year
@@ -116,7 +127,6 @@ sales_summary_2 %>%
   summarise(total_units_sold = sum(total_units_sold)) -> sales_summary_q
 
 ```
-
 
 ```{r}
 # Calculate quarterly quantiles
@@ -142,7 +152,6 @@ sales_summary_q %>%
 # Quarterly axis is not good
 
 ```
-
 
 ```{r}
 # Plots not used
@@ -170,5 +179,199 @@ sales_summary_q %>%
         ggplot()+
         geom_point(aes(x = quarter, y = total_units_sold, colour = store_id))
 
+```
+
+# Question 2
+
+(a) The Operations Manager is interested in studying an EOQ model for
+    product 216233, based on sales in 2012. The setup and holding costs
+    are known to be 130 per order and 1.50 per unit per year,
+    respectively.
+
+
+i)  Determine the best order quantity in such a way that the costs are
+    minimised. Write 1 -- 2 paragraphs summarising your findings.
+
+Marking criteria 
+• Number of orders during a year, number of days
+between orders, and the total annual inventory cost are correctly computed and included in the findings. 
+• The paragraphs clearly explain your findings. 
+• Assumptions of the EOQ model are clearly stated
+
+```{r}
+# Annual demand in 2012 for product 216233
+sales_data %>% 
+   mutate(week = as_date(week, format = "%d/%m/%y"),
+         year = year(week)) %>% 
+  filter(sku_id == "216233", year == 2012) %>%
+  select(units_sold) %>% 
+  sum()-> A 
+
+k <- 130 # set up costs per order
+h <- 1.5 # holding costs per unit
+
+Q <- sqrt(2*k*A / h) # optimum order quantity 
+Q <- round(Q, 0)
+
+
+t <- sqrt(2*k/(A*h)) # inventory cycle 
+t <- round(365*t, 0)
+
+Tc <- k*A/Q + h*Q/2 # annual inventory cost
+
+
+plot(0, xlim = c(0, 2*t), ylim = c(0, Q), type = "n",
+     xlab = "Time (days)", ylab = "Stock level",
+     main = "Inventory cycles for 216233")
+segments(x0 = c(0,t), y0 = Q, x1 = c(t,2*t), y1 = 0) # diagonals
+segments(x0 = c(0,t), y0 = 0, x1 = c(0,t), y1 = Q)  # vertical
+
+
+```
+
+Optimum order quantity is `r Q`
+Inventory cycle is `r t`
+Annual inventory cost is `r Tc`
+
+
+Assumptions of EOQ model:
+Known and constant demand
+No lead time - orders arrive instantaneously
+No back orders
+
+ii) The Operations Manager is also interested in studying a model in
+    which backorders are permitted. According to its estimates, the cost
+    of backorders is approximately 5% of the total price (price per
+    unit). Determine the best order quantity in the sense that inventory
+    costs are minimised. Write 1 -- 2 paragraphs summarising your
+    findings and plot the first two inventory cycles.
+
+Marking criteria 
+• The optimum order quantity, maximum level of stock, optimum time between orders, proportion of time the company have to take backorders, and total annual inventory cost are correctly computed and included in your answer. 
+• The paragraphs clearly explain your findings.
+• Assumptions of the model are clearly stated. 
+• The first two inventory cycles are correctly plotted
+
+```{r}
+# Annual demand in 2012 for product 216233
+sales_data %>% 
+   mutate(week = as_date(week, format = "%d/%m/%y"),
+         year = year(week)) %>% 
+  filter(sku_id == "216233", year == 2012) %>%
+  select(units_sold) %>% 
+  sum()-> A 
+
+k <- 130 # set up costs per order
+h <- 1.5 # holding costs per unit
+
+sales_data %>% 
+   mutate(week = as_date(week, format = "%d/%m/%y"),
+         year = year(week)) %>% 
+  filter(sku_id == "216233", year == 2012) %>% 
+  select(total_price)-> x # create vector of prices for product 216233
+
+p <- mean(x$total_price)*0.05 # back order cost per unit (0.05 of total price)
+
+Q <- sqrt(2*k*A/h) * sqrt((p+h)/p)
+Q <- round(Q, 0) # Optimum ordering quantity
+
+S <- sqrt(2*k*A/h) * sqrt(p/(p+h))
+S <- round(S, 0) # Optimum maximum inventory level
+
+t <- round(365*Q/A, 0) # Optimum time between orders
+
+t1 <- round(365*S/A, 0) # Time supplier is in stock
+pt1 <- 100*(t-t1)/t # Proportion of time supplier taking back orders
+
+Tc <- k*A/Q + h/2 * S^2/Q + p/2 * (Q-S)^2 /Q # Total inventory cost
+
+bo <- Q*(pt1/100) # back orders before reordering
+
+# Plotting
+plot(0, xlim = c(0, 2*t), ylim = c(-bo, Q), type = "n",
+     xlab = "Time (days)", ylab = "Stock level",
+     main = "Inventory cycles for 216233")
+segments(x0 = c(0,t), y0 = Q, x1 = c(t,2*t), y1 = -bo) # diagonals
+segments(x0 = c(0,t), y0 = -bo, x1 = c(0,t), y1 = Q)  # vertical
+segments(x0 = c(0,t), y0 = 0, x1 = c(t,2*t), y1 = 0) # horizontal
+```
+
+Optimum ordering quantity `r Q`
+Optimum maximum inventory level `r S`
+Optimum time between orders `r t`
+Proportion of time taking back orders `r pt1`
+Total inventory cost `r Tc`
+
+Assumptions of model:
+known and constant demand
+no lead time
+orders arrive instantaneously
+back orders allowed
+demand can be backordered when no stock
+
+
+iii) Plot the inventory cycles associated with the model in part ii and compare with the observed inventory levels in 2012, assuming actual demand during 2012, and the order frequency and order quantity from the model. Write 2 – 3 sentences describing your plot.
+
+Marking criteria
+• The inventory levels from the model and data are correctly plotted.
+• Accurate and insightful comments are made about the plot.
+• Note: This is a bonus question. The maximum mark that could be awarded for this
+project is 100
+
+```{r}
+# Calculate weekly sales in 2012 for product 216233
+sales_data %>% 
+   mutate(week = as_date(week, format = "%d/%m/%y"),
+         year = year(week))%>% 
+  filter(sku_id == "216233", year == 2012) %>%
+  group_by(week) %>% 
+  summarise(quantity = sum(units_sold)) -> weekly_sales
+
+# create data frame with reorder quantities and dates
+seq(from = 0, to = 365, by = t) %>% 
+  as_tibble() %>% 
+  mutate(week = as_date("2012-01-01") + value, quantity = Q) %>% 
+  select(week, quantity) -> inventory
+
+# combine data frames and create a running total
+weekly_sales %>% 
+  mutate(quantity = quantity * (-1)) %>% 
+  rbind(inventory) %>% 
+  arrange(week) %>% 
+  mutate(inventory = cumsum(quantity), 
+         type = (ifelse(quantity > 0, "inventory", "sales"))) -> inventory2
+
+ggplot(inventory2) +
+  geom_line(aes(x = week, y = inventory)) +
+  geom_hline(yintercept = 0)
+
+```
+
+The Operations Manager is considering the option of a multi-period inventory model. The company, as a policy, is not willing to tolerate more than 5% chance of a stock-out. The Operations Manager has estimated that the annual holding cost is 6.50 per unit and the ordering cost is 20.50 per order.
+
+i. Calculate a multi-period inventory model for product 216425, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b)above. Write a paragraph explaining the results of your model and the plot/s.
+
+Hint: Use the weekly demand to estimate the demand during a one-week lead time.
+
+Marking criteria
+• The optimal order quantity, safety stock, expected annual cost, orders per years are correctly computed and included in your answer.
+• The paragraph clearly explains your findings.
+• The assumption of normality for the demand during a one-week lead time is discussed.
+• The weekly average demand of this product is correctly plotted and discussed
+
+```{r}
+sales_data %>% 
+   mutate(week = as_date(week, format = "%d/%m/%y"),
+         year = year(week))%>% 
+  filter(sku_id == "216425", year == 2012) %>%
+  group_by(week) %>% 
+  summarise(average = mean(units_sold)) -> weekly_sales2
+
+sales_data %>% 
+   mutate(week = as_date(week, format = "%d/%m/%y"),
+         year = year(week))%>% 
+  filter(sku_id == "216425", year == 2012) %>%
+  group_by(week) %>% 
+  summarise(units_sold)
 
 ```
