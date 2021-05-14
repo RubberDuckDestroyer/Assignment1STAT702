@@ -375,3 +375,19 @@ sales_data %>%
   summarise(units_sold)
 
 ```
+
+#Question 3
+
+## Question 3a
+
+```{r filter_reviews}
+
+my_reviews = reviews_data %>%
+  filter(asin == "B00006IE7J")
+
+reviewRange = 1:5
+head(my_reviews)
+summary(my_reviews$overall)
+# Stats - plots 
+ggplot(data = my_reviews) +
+  geom_bar(mapping = aes(x=overall, fill=overall))
