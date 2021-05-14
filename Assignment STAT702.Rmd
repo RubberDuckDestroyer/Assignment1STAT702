@@ -6,23 +6,91 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+Product name: BIC Round Stic Xtra Life Ballpoint Pen, Medium Point (1.0mm), Red, 12-Count
+Sales sku_id: 219844
+Reviews asin: B00006IE7J 
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+#1 Analysis of Sales Data
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## 1(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 – September 2013. Present your results in an appropriate plot and write 2 – 3 sentences describing your results.
 
-```{r cars}
-summary(cars)
+```{r load_libs}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(ggplot2)
 ```
 
-## Including Plots
+1 Read data
 
-You can also embed plots, for example:
+```{r read data}
+reviews_data = read.csv("reviews_data.csv") %>% as_tibble()
+sales_data = read.csv("sales_data.csv") %>% as_tibble()
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+head(reviews_data)
+head(sales_data)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r filter_data}
+
+sales_data %>%
+  filter(sku_id == 219844) %>%
+  mutate(week = as_date(week, format = "%d/%m/%y"),
+         date = my(format(week, "%m/%y"))) %>% 
+  group_by(date) %>% 
+  summarise(total_units = sum(units_sold)) %>% 
+  filter(between(date, as_date("2011-01-01"), as_date("2013-09-30"))) -> sales_jan11_to_sep13
+sales_jan11_to_sep13
+```
+```{r plot-sales}
+ggplot(sales_jan11_to_sep13) +
+  geom_point(mapping = aes(x = date, y = total_units)) +
+   geom_line(mapping = aes(x = date, y = total_units)) +
+  ggtitle("Monthly Sales (Jan 11 - Sep 13) for SKU 219844")
+```
+
+In the above plot we can see that the sales of the product #219844 decreases sharply during after January and July. We also notice a sharp increase in sales around the months of December and June. This trend continues yearly.
+
+## 1(b)
+
+## Question 3a
+
+```{r filter_reviews}
+my_reviews = reviews_data %>% filter(asin == "B00006IE7J")
+
+reviewRange = 1:5
+head(my_reviews)
+summary(my_reviews$overall)
+# Stats - plots 
+ggplot(data = my_reviews) +
+  geom_bar(mapping = aes(x=overall, fill=overall))
+```
+
+## Question 3b
+```{r sentiment_data}
+library(tidytext)
+
+sentiment_dat = my_reviews %>% select(document.id, overall, verified, reviewText, summary)
+head(sentiment_dat)
+
+# Tidying
+sentiment_dat %>% 
+  unnest_tokens(output = reviewWord, input = reviewText) -> tidy_sentiment
+
+tidy_sentiment %>% 
+  unnest_tokens(output = summaryWord, input = summary) %>% print(n = 5) -> tidy_sentiment
+
+# Add Row Number
+tidy_sentiment %>% mutate(linenumber = row_number()) -> tidy_sentiment
+head(tidy_sentiment)
+
+# Remove Stop Words
+data("stop_words")
+tidy_sentiment %>% anti_join(stop_words)
+
+```
+
+
+
