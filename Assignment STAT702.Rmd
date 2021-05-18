@@ -10,10 +10,10 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+#1 Analysis of Sales Data
 Product name: BIC Round Stic Xtra Life Ballpoint Pen, Medium Point
 (1.0mm), Red, 12-Count Sales sku_id: 219884 Reviews asin: B00006IE7J
-
-\#1 Analysis of Sales Data
 
 ## 1(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 -- September 2013. Present your results in an appropriate plot and write 2 -- 3 sentences describing your results.
 
@@ -230,13 +230,18 @@ segments(x0 = c(0,t), y0 = 0, x1 = c(0,t), y1 = Q)  # vertical
 ```
 
 Optimum order quantity is `r Q`
+
 Inventory cycle is `r t`
+
 Annual inventory cost is `r Tc`
 
 
 Assumptions of EOQ model:
+
 Known and constant demand
+
 No lead time - orders arrive instantaneously
+
 No back orders
 
 ii) The Operations Manager is also interested in studying a model in
@@ -297,16 +302,26 @@ segments(x0 = c(0,t), y0 = 0, x1 = c(t,2*t), y1 = 0) # horizontal
 ```
 
 Optimum ordering quantity `r Q`
+
 Optimum maximum inventory level `r S`
+
 Optimum time between orders `r t`
+
 Proportion of time taking back orders `r pt1`
+
 Total inventory cost `r Tc`
 
+
 Assumptions of model:
+
 known and constant demand
+
 no lead time
+
 orders arrive instantaneously
+
 back orders allowed
+
 demand can be backordered when no stock
 
 
@@ -360,34 +375,132 @@ Marking criteria
 • The weekly average demand of this product is correctly plotted and discussed
 
 ```{r}
+# Calculate weekly sales in 2012 for product 216425
 sales_data %>% 
    mutate(week = as_date(week, format = "%d/%m/%y"),
          year = year(week))%>% 
   filter(sku_id == "216425", year == 2012) %>%
   group_by(week) %>% 
-  summarise(average = mean(units_sold)) -> weekly_sales2
+  summarise(quantity = sum(units_sold)) -> weekly_sales
 
+mean <- mean(weekly_sales$quantity)
+sd <- sd(weekly_sales$quantity)
+
+# Expected annual demand 
+D <- mean*52
+
+
+# subset total_price to calculate average total_price
 sales_data %>% 
    mutate(week = as_date(week, format = "%d/%m/%y"),
-         year = year(week))%>% 
-  filter(sku_id == "216425", year == 2012) %>%
-  group_by(week) %>% 
-  summarise(units_sold)
+         year = year(week)) %>% 
+  filter(sku_id == "216425", year == 2012) %>% 
+  select(total_price)-> y # create vector of prices for product 216425
+
+# purchase price
+pp <- mean(y$total_price)
+
+# ordering cost
+co <- 20.5 # per order
+
+# annual holding cost
+ch <- 6.5 # per unit
+
+# optimal ordering quantity
+Q = round(sqrt(2 * D * co / ch), 0)
+
+# time between orders 
+t <- round(365*Q/D, 0)
+
+# orders per year
+n <- round(D/Q, 0)
+
+#  Reorder point r that allows 5% chance of a stock-out
+r <- qnorm(0.95, mean, sd)
+
+x <- seq(from= 0,to=4000,len=100)
+plot(x,dnorm(x,mean=mean,sd=sd ),type="l",lwd=3,col="black") +
+abline(v = r)
+
+# safety stock
+Qs <- r - mean
+
+## Expected annual cost
+
+# Holding cost (normal stock)
+hc_normal <- Q * ch / 2
+
+# Holding cost (safety stock)
+hc_safety <- Qs * ch
+
+# Ordering cost
+oc <- D * co / Q
+
+# Total annual cost 
+tac <- hc_normal + hc_safety + oc
+
+# annual cost with no safety stock
+tac2 <- hc_normal + oc
+
+###############################
+# not sure if D should be actual orders in 2012 or expected annual demand mean * 52)
+##################################
+```
+
+Demand during a one week lead time has been estimated based off 2012 weekly demand. The mean weekly demand from 2012 and standard deviation have been applied to a normal distribution to estimate demand for this multi-inventory model. 
+
+As the plot below shows, the actual demand for 2012 does not perfectly follow a normal distribution. It is difficult to determine the distribution of weekly demand based on only one year of observations.It is recommended that more data is used to for a more accurate model of demand distribution. 
+
+Based on 2012, where mean weekly demand was `r mean` with standard deviation of `r sd`, the expected annual demand is estimated to be `r D`. 
+
+Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder  point of `r r` units. Approximately `r n` orders will be placed per year. Safety stock is `r Q`. 
+
+This approach ensures roughly 95% of the time the `r r` units will be able to satisfy demand during the lead time. 
+
+The expected annual costs are `r tac` per year. If demand was certain the annual costs would only be `r tac`, the additional cost of holding safety stock is the cost of uncertain demand. 
+
+```{r}
+# Plot observations against estimated lead-time distribution
+
+# set bin width and number of observations for plotting
+bw <- 300
+n_obs = sum(!is.na(weekly_sales$quantity))
+
+g <- ggplot(weekly_sales, aes(quantity))  + 
+geom_histogram(aes(y = ..density..), binwidth = bw, colour = "black") + 
+stat_function(fun = dnorm, args = list(mean = mean(weekly_sales$quantity), sd = sd(weekly_sales$quantity)))
+
+ybreaks = seq(0,20,1) 
+
+g + scale_y_continuous("Density", sec.axis = sec_axis(
+  trans = ~ . * bw * n_obs, name = "Counts", breaks = ybreaks))
 
 ```
 
-#Question 3
+Optimal ordering quanitity `r Q`
+
+Safety stock
+
+Expected annual cost
+
+Orders per year
+
+
+# Question 3
 
 ## Question 3a
 
-```{r filter_reviews}
+```{r}
+reviews_data %>%
+  filter(asin == "B00006IE7J") -> my_reviews
 
-my_reviews = reviews_data %>%
-  filter(asin == "B00006IE7J")
-
-reviewRange = 1:5
 head(my_reviews)
 summary(my_reviews$overall)
+
+
 # Stats - plots 
 ggplot(data = my_reviews) +
   geom_bar(mapping = aes(x=overall, fill=overall))
+
+
+```
