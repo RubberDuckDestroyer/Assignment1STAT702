@@ -38,7 +38,9 @@ sales_data <- as_tibble(sales_data)
 
 ## 1(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 -- July 2013. Present your results in an appropriate plot and write 2 -- 3 sentences describing your results.
 
-Hint: This will require some "wrangling" of the variable week. To do this, format week as a date and then use the appropriate lubridate function to extract the month.
+Hint: This will require some "wrangling" of the variable week. To do
+this, format week as a date and then use the appropriate lubridate
+function to extract the month.
 
 Marking Criteria
 
@@ -48,16 +50,7 @@ Marking Criteria
 -   Description of results/plot is correct and provides useful insights.
 
 -   Plot is constructed using ggplot2 and has appropriate titles,
-    labels, scales etc.**
-
-
-## Answer
-
-From Jan 2011 - July 2013 `r sum(monthly_sales$total_units_sold)` units of sku 219844 were sold with a mean monthly sale of `r mean(monthly_sales$total_units_sold`. Over this period there was a significant outlier with `r outlier$total_units_sold` units sold on `r outlier$date`. 
-
-50% of monthly sales lie between `r summary(monthly_sales$total_units_sold)[2]` and `r summary(monthly_sales$total_units_sold)[5]`, this is the interquartile range. 
-
-Monthly sales are plotted below, no trend or seasonal pattern is evident in this plot. 
+    labels, scales etc.
 
 ```{r 1a}
 # Create a summary table, grouped by month and year (single column with m/y)
@@ -67,24 +60,63 @@ sales_data %>%
          date = format(week, "%m/%y"),
          date = my(date)) %>%
   group_by(date) %>%
-  summarise(total_units_sold = sum(units_sold))-> monthly_sales
+  summarise(total_units_sold = sum(units_sold))-> sales_summary
 
-# Line plot of monthly sales
-ggplot(monthly_sales) +
-  geom_line(aes(x = date, y = total_units_sold)) +
-  xlab("Date") +
-  ylab("Units Sold") +
-  ggtitle("Monthly sales for product 219844 (Jan 2011 - July 2013)")
+# Plot of monthly sales
+ggplot(sales_summary) +
+        geom_line(aes(x = date, y = total_units_sold)) +
+        xlab("Date") +
+        ylab("Units Sold") +
+        ggtitle("Monthly sales for product 219844")
+
+
+# # Print the summary, displaying month and year in separate columns
+# 
+# sales_summary %>% 
+#         mutate(month = month(date, label = TRUE), year = (year(date))) %>%
+#         select(month, year, total_units_sold) %>% view()
+
 
 # Compute basic stats
-summary(monthly_sales$total_units_sold)
+summary(sales_summary$total_units_sold)
 
-# Identify outlier
-monthly_sales %>% 
-  arrange(desc(total_units_sold)) %>% 
-  slice_max(total_units_sold) -> outlier
+# Box plot of monthly sales
+sales_data %>% 
+  filter(sku_id == 219844) %>%
+  mutate(week = as_date(week, format = "%d/%m/%y"),
+         date = format(week, "%m/%y"),
+         date = my(date)
+         ) %>%
+  group_by(date) %>%
+  arrange(date) %>% 
+  ggplot() +
+  geom_boxplot(aes(x = date, y = units_sold, group = date)) + 
+  xlab("Date") +
+  ylab("Units Sold") +
+  ggtitle("Distribution of store monthly sales for product 219844")
+
+# Box plot of monthly sales
+sales_data %>% 
+  filter(sku_id == 219844) %>%
+  mutate(week = as_date(week, format = "%d/%m/%y"),
+         date = format(week, "%m/%y"),
+         date = my(date),
+         month = month(date, label = TRUE), 
+        year = (year(date)))%>%
+  group_by(date) %>%
+  arrange(date) %>% 
+  ggplot() +
+  geom_boxplot(aes(x = month, y = units_sold, group = month)) + 
+  xlab("Date") +
+  ylab("Units Sold") +
+  ggtitle("Distribution of store monthly sales for product 219844")
+
 ```
 
+Mean monthly sales are 3175. Outlier of 8871 sales in Jan 2012, minimum
+observation is 1897 in March 2012. 50% of observations lie between the
+values 2622 (first quartile) and 3302 (third quartile). No seasonal
+variation or trend identified.
 
 ## 1(b) The GM Sales wants to know which stores are performing well and which are not, in terms of product sales. For the product (sku_id) which has been assigned to your group, use appropriate summary statistics and plots to investigate sales performance across the stores and write 2 -- 3 paragraphs summarising your findings.
 
@@ -103,12 +135,9 @@ Marking criteria
 
 -   Descriptions of results and plots are correct and provides useful
     insights.
-    
-## Answer
-
 
 ```{r 1b}
-# Summarise overall sales per store
+# Summarise by year
 sales_data %>% 
   filter(sku_id == 219844) %>%
   mutate(week = as_date(week, format = "%d/%m/%y"),
@@ -116,98 +145,87 @@ sales_data %>%
          date = my(date),
          year = year(date),
          quarter = quarter(date),
-         store_id = as.character(store_id)) %>% 
-  filter(between(date, as_date("2011-01-01"), as_date("2013-06-30"))) %>% 
-  group_by(store_id) %>%
-  summarise(store_total = sum(units_sold))-> store_sales
+         store_id = as.character(store_id))%>%
+  group_by(year, store_id, date) %>%
+  summarise(total_units_sold = sum(units_sold)) -> sales_summary_2
 
-# Rank stores based on total sales
-store_sales %>% 
-  arrange(desc(store_total)) %>% 
-  mutate(ranking = seq(1:28)) -> store_sales
+# Summarise by quarter
+
+sales_summary_2 %>%
+  mutate(quarter = quarter(date)) %>%
+  unite("quarter", year, quarter, remove = FALSE, sep = "/") %>% 
+  group_by(quarter, store_id) %>% 
+  summarise(total_units_sold = sum(total_units_sold)) -> sales_summary_q
+
+# Calculate quarterly quantiles
+quartiles <- summary(sales_summary_q$total_units_sold)
+q1 <- quartiles[2]
+q3 <- quartiles[5]
+
+# Quarterly plots for each store with colour based on performance
+# low is less than q1
+# high is greater than q3
+
+sales_summary_q %>%
+  mutate(performance = ifelse(total_units_sold < q1, "Low", (ifelse(total_units_sold > q3, "High", "Average")))) %>%
+  ggplot()+
+  geom_point(aes(x = quarter, y = total_units_sold, colour = performance)) + 
+  facet_wrap(~ store_id, ncol = 6) +
+  scale_colour_manual(values = c("#80CAFF", "#4BC979", "#E76F51"))
+
+# Quarterly axis is not good
+
+quarterly_sales %>% 
+  filter(ranking == "1") %>% 
+  ggplot()+
+  geom_point(aes(x = quarter, y = total_units_sold, colour = performance)) + 
+  facet_wrap(~ store_id, ncol = 3) +
+  scale_colour_manual(values = c("#80CAFF", "#4BC979", "#E76F51")) +
+  scale_x_discrete(labels = c("2011", "", "", "", "2012", "", "", "", "2013", ""))
+
+quarterly_sales %>% 
+  mutate(year = as.character(year)) %>% 
+  arrange(year) %>% 
+  ggplot() +
+  geom_bar(aes(x = store_id, y = total_units_sold, fill = year), stat = "sum") 
+
+## Caluclate quartiles
+#store_summary <- summary(store_sales$store_total)
+
+## Rank stores into 4 groups based on total sales
+#store_sales %>% 
+#  mutate(ranking = ifelse(store_total < store_summary[2], "1", 
+#                              (ifelse(store_total < store_summary[4], "2",
+#                                      ifelse(store_total < store_summary[5], "3", #"4"))))) -> store_sales
+
 ```
 
 ```{r}
-# Weekly sales performance classified into High, Average and Low based on interquartile range
+# Plots not used
 
-# Weekly sales per store
-sales_data %>% 
-  filter(sku_id == 219844) %>%
-  mutate(week = as_date(week, format = "%d/%m/%y"),
-         store_id = as.character(store_id)) -> weekly_sales
+# summarise by year
+sales_summary_2 %>%
+        ggplot() + 
+        geom_point(aes(x = store_id, y = total_units_sold, colour = year))
 
-# Classify weekly sales performance
-weekly_sales %>% 
-  mutate(performance = ifelse
-         (units_sold < summary(weekly_sales$units_sold)[2], "Low", 
-                              (ifelse
-                               (units_sold > summary(weekly_sales$units_sold)[5],
-                                 "High", 
-                                 "Average")))) -> weekly_sales
+sales_summary_2 %>% 
+        ggplot()+
+        geom_point(aes(x = date, y = total_units_sold, colour = store_id))
 
-# Add store ranking
-weekly_sales %>% 
-  left_join(store_sales, by = "store_id") -> weekly_sales 
+sales_summary_2 %>% 
+        ggplot()+
+        geom_point(aes(x = date, y = total_units_sold)) + facet_wrap(~ store_id, ncol = 6)
+        
+# summarise by quarter
 
-# Add category
-weekly_sales %>% 
-  mutate(category = ifelse(is_featured_sku == "1", "Featured", 
-                              (ifelse(is_display_sku == "1", "Display", "None")))) -> weekly_sales
+sales_summary_q %>% 
+        ggplot()+
+        geom_point(aes(x = quarter, y = total_units_sold)) + facet_wrap(~ store_id, ncol = 6)
 
-# Order performance
-weekly_sales$performance<- factor(weekly_sales$performance, levels=c("High", "Average", "Low"))
-```
+sales_summary_q %>% 
+        ggplot()+
+        geom_point(aes(x = quarter, y = total_units_sold, colour = store_id))
 
-```{r}
-# Plot showing that high performing weeks are more likely to have display or featured product than average or low performing weeks
-
-weekly_sales %>% 
-  ggplot() +
-  geom_bar(aes(x = performance, fill = category))
-
-weekly_sales %>% 
-  ggplot() +
-  geom_point(aes(x = ranking, y= units_sold, colour = performance))
-
-weekly_sales %>% 
-  ggplot() +
-  geom_bar(aes(x = ranking, fill = category))
-
-# This explains spike, featured in heaps of stores in jan 2012
-weekly_sales %>% 
-  filter(ranking > 18) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category))
-
-```
-  
-```{r}
-# Scatter plots showing weekly sales for each store along with category
-
-# Plot bottom third
-weekly_sales %>% 
-  filter(ranking > 18) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
-
-# Plot middle third
-weekly_sales %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
-
-# Plot top third
-weekly_sales %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
 ```
 
 # Question 2

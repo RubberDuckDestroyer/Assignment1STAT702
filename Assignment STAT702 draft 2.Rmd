@@ -106,6 +106,11 @@ Marking criteria
     
 ## Answer
 
+Quarterly sales have been calculated for each store. The mean number of units sold by a store in a quarter is `r mean(quarterly_sales)` with an interquartile range of `r q1` - `r q3`. This means that 50% of store quarterly sales lie within the range of `r q1` - `r q3` and this range is used as a benchmark for comparing store performance. 
+
+If a store sells more than `r q3` units then their quarterly performance is classified as 'High'. If a store sells less than `r q1` then their quarterly performance is classified as 'Low'. If they sell within the interquartile range they are classified as 'Average'. 
+
+In 2013 obesrvations only include January - July. This means there is only partial data for quarter 3 and quarter 4 so these quarters are exculded from the following analysis. 
 
 ```{r 1b}
 # Summarise overall sales per store
@@ -127,87 +132,165 @@ store_sales %>%
   mutate(ranking = seq(1:28)) -> store_sales
 ```
 
-```{r}
-# Weekly sales performance classified into High, Average and Low based on interquartile range
 
-# Weekly sales per store
+```{r}
+# Monthly sales per store
 sales_data %>% 
   filter(sku_id == 219844) %>%
   mutate(week = as_date(week, format = "%d/%m/%y"),
-         store_id = as.character(store_id)) -> weekly_sales
+         date = format(week, "%m/%y"),
+         date = my(date),
+         store_id = as.character(store_id)) %>%
+  group_by(date, store_id) %>%
+  summarise(total_units_sold = sum(units_sold))-> monthly_sales
 
-# Classify weekly sales performance
-weekly_sales %>% 
+# Classify monthly performance
+monthly_sales %>% 
   mutate(performance = ifelse
-         (units_sold < summary(weekly_sales$units_sold)[2], "Low", 
+         (total_units_sold < summary(monthly_sales$total_units_sold)[2], "Low", 
                               (ifelse
-                               (units_sold > summary(weekly_sales$units_sold)[5],
+                               (total_units_sold > summary(monthly_sales$total_units_sold)[5],
                                  "High", 
-                                 "Average")))) -> weekly_sales
+                                 "Average")))) -> monthly_sales
 
-# Add store ranking
-weekly_sales %>% 
-  left_join(store_sales, by = "store_id") -> weekly_sales 
+# categorise month based on if product is on display or not
+sales_data %>% 
+  filter(sku_id == 219844) %>%
+  mutate(week = as_date(week, format = "%d/%m/%y"),
+         date = format(week, "%m/%y"),
+         date = my(date),
+         year = year(date),
+         quarter = quarter(date),
+         store_id = as.character(store_id),
+         category = ifelse(is_featured_sku == "1", "Featured", 
+                              (ifelse(is_display_sku == "1", "Display", "None")))) -> sales_2
 
-# Add category
-weekly_sales %>% 
-  mutate(category = ifelse(is_featured_sku == "1", "Featured", 
-                              (ifelse(is_display_sku == "1", "Display", "None")))) -> weekly_sales
+# Add overall store ranking to monthly sales
+monthly_sales %>% 
+  left_join(store_sales, by = "store_id") %>% 
+  select(store_id, date, total_units_sold, performance, ranking) -> monthly_sales
 
-# Order performance
-weekly_sales$performance<- factor(weekly_sales$performance, levels=c("High", "Average", "Low"))
-```
+
+
+``` 
 
 ```{r}
-# Plot showing that high performing weeks are more likely to have display or featured product than average or low performing weeks
 
-weekly_sales %>% 
-  ggplot() +
-  geom_bar(aes(x = performance, fill = category))
-
-weekly_sales %>% 
-  ggplot() +
-  geom_point(aes(x = ranking, y= units_sold, colour = performance))
-
-weekly_sales %>% 
-  ggplot() +
-  geom_bar(aes(x = ranking, fill = category))
-
-# This explains spike, featured in heaps of stores in jan 2012
-weekly_sales %>% 
-  filter(ranking > 18) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category))
-
-```
+``` 
   
-```{r}
-# Scatter plots showing weekly sales for each store along with category
+```{r}  
+# Summarise by quarterly sales for each store
+sales_data %>% 
+  filter(sku_id == 219844) %>%
+  mutate(week = as_date(week, format = "%d/%m/%y"),
+         date = format(week, "%m/%y"),
+         date = my(date),
+         year = year(date),
+         quarter = quarter(date),
+         store_id = as.character(store_id)) %>% 
+  filter(between(date, as_date("2011-01-01"), as_date("2013-06-30"))) %>% 
+  unite("quarter", year, quarter, remove = FALSE, sep = "/") %>%
+  group_by(quarter, store_id) %>% 
+  summarise(total_units_sold = sum(units_sold))  -> quarterly_sales
 
-# Plot bottom third
-weekly_sales %>% 
-  filter(ranking > 18) %>% 
-  mutate(as.character(week)) %>% 
+# Calculate quarterly quartiles
+q1 <- summary(quarterly_sales$total_units_sold)[2]
+q3 <- summary(quarterly_sales$total_units_sold)[5]
+
+# Add performance classification
+quarterly_sales %>% 
+  mutate(performance = ifelse(total_units_sold < q1, "Low", 
+                              (ifelse(total_units_sold > q3, "High", "Average")))) -> quarterly_sales
+
+# Add ranking to quarterly sales
+quarterly_sales %>% 
+  left_join(store_sales, by = "store_id") %>% 
+  select(quarter, total_units_sold, store_id, performance, ranking) -> quarterly_sales
+
+# All plots
+quarterly_sales %>% 
   ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
+  geom_point(aes(x = quarter, y = total_units_sold, colour = performance)) + 
+  facet_wrap(~ store_id, ncol = 6) +
+  scale_colour_manual(values = c("#80CAFF", "#4BC979", "#E76F51")) +
+  scale_x_discrete(labels = c("2011", "", "", "", "2012", "", "", "", "2013", ""))
+
+```
+
+```{r}
+# Plot bottom third
+quarterly_sales %>% 
+  filter(ranking >18) %>% 
+  ggplot()+
+  geom_point(aes(x = quarter, y = total_units_sold, colour = performance)) + 
+  facet_wrap(~ store_id, ncol = 3) +
+  scale_colour_manual(values = c("#80CAFF", "#E76F51")) +
+  scale_x_discrete(labels = c("2011", "", "", "", "2012", "", "", "", "2013", ""))
 
 # Plot middle third
-weekly_sales %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(week)) %>% 
+quarterly_sales %>% 
+  filter(ranking <18, ranking >9) %>% 
   ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
+  geom_point(aes(x = quarter, y = total_units_sold, colour = performance)) + 
+  facet_wrap(~ store_id, ncol = 3) +
+  scale_colour_manual(values = c("#80CAFF", "#4BC979", "#E76F51")) +
+  scale_x_discrete(labels = c("2011", "", "", "", "2012", "", "", "", "2013", ""))
 
-# Plot top third
-weekly_sales %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(week)) %>% 
+# Plot rank top  third
+quarterly_sales %>% 
+  filter(ranking < 9) %>% 
+  ggplot()+
+  geom_point(aes(x = quarter, y = total_units_sold, colour = performance)) + 
+  facet_wrap(~ store_id, ncol = 3) +
+  scale_colour_manual(values = c("#80CAFF", "#4BC979", "#E76F51")) +
+  scale_x_discrete(labels = c("2011", "", "", "", "2012", "", "", "", "2013", ""))
+
+
+
+```
+
+```{r}
+# categorise based on if product is on display or not
+sales_data %>% 
+  filter(sku_id == 219844) %>%
+  mutate(week = as_date(week, format = "%d/%m/%y"),
+         date = format(week, "%m/%y"),
+         date = my(date),
+         year = year(date),
+         quarter = quarter(date),
+         store_id = as.character(store_id),
+         category = ifelse(is_featured_sku == "1", "Featured", 
+                              (ifelse(is_display_sku == "1", "Display", "None")))) -> sales_2
+
+# Add ranking 
+sales_2 %>% 
+  left_join(store_sales, by = "store_id") -> sales_2
+  
+sales_2 %>% 
+  ggplot()+
+  geom_point(aes(x = week, y = units_sold, shape = category)) + 
+  facet_wrap(~ store_id, ncol = 6)
+
+
+sales_2 %>% 
+  filter(ranking == 1) %>% 
   ggplot()+
   geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
+  facet_wrap(~ store_id, ncol = 6)
+
+sales_2 %>% 
+  geom_point(aes(x= week, y = units_sold, colour = category))
+
+
+# bottom third
+sales %>% 
+  filter(ranking >18) %>% 
+  ggplot()+
+  geom_point(aes(x = week, y = total_units_sold, shape = category)) + 
+  facet_wrap(~ store_id, ncol = 3) +
+  scale_colour_manual(values = c("#80CAFF", "#E76F51")) +
+  scale_x_discrete(labels = c("2011", "", "", "", "2012", "", "", "", "2013", ""))
+
 ```
 
 # Question 2
