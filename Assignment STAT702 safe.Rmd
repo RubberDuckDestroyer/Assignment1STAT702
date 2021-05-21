@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,
 # Load libraries
 library(tidyverse)
 library(lubridate)
+library(viridis)
 
 # Read in data sets and convert to tibbles
 reviews_data <- read.csv("reviews_data.csv")
@@ -62,7 +63,7 @@ sales_data %>%
          year = year(month), # add year
          quarter = quarter(month), # add quarter
          store_id = as.character(store_id), # convert store id to character format
-         category = # add category variable
+         promotion = # add promotion variable
            ifelse(is_featured_sku == "1" & is_display_sku == "1", "Featured & Displayed", 
                   ifelse(is_featured_sku == "1", "Featured", 
                          ifelse(is_display_sku == "1", "Displayed", "None"))),
@@ -73,8 +74,8 @@ sales_data %>%
 # Order performance variable
 sales_219844$performance <- factor(sales_219844$performance, levels=c("High", "Average", "Low"))
 
-# Order category variable
-sales_219844$category <- factor(sales_219844$category, levels = c("Featured & Displayed", "Featured", "Displayed", "None"))
+# Order promotion variable
+sales_219844$promotion <- factor(sales_219844$promotion, levels = c("Featured & Displayed", "Featured", "Displayed", "None"))
 
 # Rank stores based on total sales
 sales_219844 %>% 
@@ -128,18 +129,18 @@ ggplot(monthly_sales) +
 # Scatter plot showing sales when displayed, featured and not
 sales_219844 %>%
   ggplot() + 
-  geom_point(aes(x = week, y = units_sold, colour = category)) +
+  geom_point(aes(x = week, y = units_sold, colour = promotion)) +
   scale_colour_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) +
   ggtitle("Weekly sales for product 219844 with categories") +
   xlab("Date") +
   ylab("Units sold")
 
-# Bar plot showing monthly sales broken down into category
+# Bar plot showing monthly sales broken down into promotion
 sales_219844 %>%
-  group_by(month, category) %>% 
+  group_by(month, promotion) %>% 
   summarise(total_units_sold = sum(units_sold)) %>% 
   ggplot() +
-  geom_bar(aes(x = month, y = total_units_sold, fill = category), stat = "identity") +
+  geom_bar(aes(x = month, y = total_units_sold, fill = promotion), stat = "identity") +
   scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) +
   ggtitle("Monthly sales for product 219844 with categories") +
   xlab("Date") +
@@ -168,64 +169,118 @@ Marking criteria
 ## Answer
 
 ```{r 1b}
-# Plot showing
+# Bar chart of total yearly sales for stores (ordered by rank)
+sales_219844 %>% 
+  mutate(year = as.character(year)) %>% 
+  group_by(store_id_ranked, year) %>% 
+  summarise(total_units = sum(units_sold)) %>% 
+  ggplot() +
+  geom_bar(aes(x = store_id_ranked, y = total_units, fill = year),  
+           stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#5BC0BE", "#3A506B", "#0B132B")) +
+  ggtitle("Total units sold by each store") +
+  xlab("Store id (ranked)") +
+  ylab("Units sold")
+
+# Bar chart of units sold under each promotion for stores
+sales_219844 %>% 
+  mutate(year = as.character(year)) %>% 
+  group_by(store_id_ranked, promotion) %>% 
+  summarise(total_units = sum(units_sold)) %>% 
+  ggplot() +
+  geom_bar(aes(x = store_id_ranked, y = total_units, fill = promotion),  
+           stat = "identity", 
+           position = "dodge") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) + 
+  ggtitle("Store sales for each promotion category") +
+  xlab("Store id (ordered by rank)") +
+  ylab("Units sold")
+
+# instead of this could do something like number of weeks with promotion ordered by rank
+  
+# Boxplot of store sales, ordered by ranking
 sales_219844 %>% 
   ggplot() +
-  geom_bar(aes(x = category, fill = performance), position ="fill") +
-  scale_fill_manual(values = c("#3c096c", "#7b2cbf", "#c77dff"))
+  geom_boxplot(aes(x = store_id_ranked, y = units_sold, group = store_id_ranked)) +
+  ggtitle("Boxplot of weekly units sold for ranked stores") +
+  xlab("Store id (ordered by rank)") +
+  ylab("Units sold weekly") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+# Plot showing high performance more likely if product is featured and/or displayed
 sales_219844 %>% 
   ggplot() +
-  geom_bar(aes(x = category, fill = performance), position ="fill")
-
-sales_219844 %>%
-  ggplot() +
-  geom_point(aes(x = ranking, y= units_sold, colour = performance))
+  geom_bar(aes(x = promotion, fill = performance), position ="fill") +
+  scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
+  ggtitle("Proportion of ") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Bar plot showing proportion of weeks product on display vs store ranking
 sales_219844 %>% 
   ggplot() +
-  geom_bar(aes(x = ranking, fill = category)) +
+  geom_bar(aes(x = ranking, fill = promotion)) +
   scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B"))
 
-# Scatter plot of weekly sales performance (top third ranking sotres)
+```
+
+```{r}
+# Subset monthly data for each store
 sales_219844 %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(week)) %>% 
+  group_by(month, store_id_ranked, ranking) %>% 
+  summarise(monthly_units = sum(units_sold)) -> store_monthly
+
+# Evaluate monthly performance based on interquartile range(over 3rd quartile = high, under 1st quartile = low, other = average)
+
+store_monthly %>%
+  mutate(performance =# add weekly performance variable
+           ifelse(monthly_units < summary(store_monthly$monthly_units)[2], "Low", 
+                  ifelse(monthly_units > summary(store_monthly$monthly_units)[5],"High","Average"))) -> store_monthly
+
+# Order performance variable
+store_monthly$performance <- factor(store_monthly$performance, levels=c("High", "Average", "Low"))
+
+## PLOTS
+
+# Top 9 stores
+store_monthly %>% 
+  filter(ranking < 9) %>% 
+  mutate(as.character(month)) %>% 
   ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = performance)) + 
+  geom_point(aes(x = month, y = monthly_units, colour = performance)) + 
   facet_wrap(~ store_id_ranked, ncol = 4) +
-  scale_colour_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B"))
+  scale_colour_manual(values = c("#ffaa00","#F20045", "#581845")) +
+  ggtitle("Monthly performance classified for each store (top 9 stores)") + 
+  xlab("Month") +
+  ylab("Units sold")
+
+# Middle 9 stores
+store_monthly %>% 
+  filter(ranking < 18, ranking > 9) %>% 
+  mutate(as.character(month)) %>% 
+  ggplot()+
+  geom_point(aes(x = month, y = monthly_units, colour = performance)) + 
+  facet_wrap(~ store_id_ranked, ncol = 4) +
+  scale_colour_manual(values = c("#ffaa00","#F20045", "#581845")) +
+  ggtitle("Monthly performance classified for each store (middle 9 stores)") + 
+  xlab("Month") +
+  ylab("Units sold")
+  
+# Bottom 10 stores
+store_monthly %>% 
+  filter(ranking < 18, ranking > 9) %>% 
+  mutate(as.character(month)) %>% 
+  ggplot()+
+  geom_point(aes(x = month, y = monthly_units, colour = performance)) + 
+  facet_wrap(~ store_id_ranked, ncol = 4) +
+  scale_colour_manual(values = c("#ffaa00","#F20045", "#581845")) +
+  ggtitle("Monthly performance classified for each store (bottom 10 stores)") + 
+  xlab("Month") +
+  ylab("Units sold")
+
 ```
   
-```{r}
-# Scatter plots showing weekly sales for each store along with category
-
-# Plot bottom third
-sales_219844 %>% 
-  filter(ranking > 18) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
-
-# Plot middle third
-sales_219844 %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
-
-# Plot top third
-sales_219844 %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(week)) %>% 
-  ggplot()+
-  geom_point(aes(x = week, y = units_sold, colour = category)) + 
-  facet_wrap(~ store_id, ncol = 4)
-```
-
 # Question 2
 
 ## (a) The Operations Manager is interested in studying an EOQ model for
