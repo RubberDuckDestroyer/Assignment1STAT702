@@ -92,8 +92,7 @@ tidy_sentiment %>% anti_join(stop_words)
 
 ```
 
-<<<<<<< Updated upstream
-=======
+
 # Question 3
 ## Question 3a
 
@@ -198,7 +197,5 @@ word_count %>%
   coord_flip()
   
 ```
-
->>>>>>> Stashed changes
 
 
