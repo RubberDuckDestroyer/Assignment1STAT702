@@ -92,5 +92,113 @@ tidy_sentiment %>% anti_join(stop_words)
 
 ```
 
+<<<<<<< Updated upstream
+=======
+# Question 3
+## Question 3a
+
+```{r filter_reviews}
+my_reviews = reviews_data %>% filter(asin == "B00006IE7J")
+reviewRange = 1:5
+head(my_reviews)
+summary(my_reviews$overall)
+# Stats - plots 
+ggplot(data = my_reviews) +
+  geom_bar(mapping = aes(x=overall, fill=factor(overall)))
+```
+
+## Question 3b
+```{r sentiment_data}
+library(tidytext)
+sentiment_dat = my_reviews %>% select(document.id, overall, verified, reviewText, summary)
+head(sentiment_dat)
+# Tidying
+sentiment_dat %>% 
+  unnest_tokens(output = reviewWord, input = reviewText) -> tidy_sentiment
+# tidy_sentiment %>% 
+#  unnest_tokens(output = summaryWord, input = summary) %>% print(n = 5) -> tidy_sentiment
+
+# Add Row Number
+tidy_sentiment %>% mutate(linenumber = row_number()) -> tidy_sentiment
+head(tidy_sentiment)
+```
+
+Now, we remove the stop words
+```{r remove_stop_words}
+# Remove Stop Words
+data("stop_words")
+tidy_sentiment %>% anti_join(stop_words, by = c("reviewWord" = "word")) -> tidy_sentiment
+# tidy_sentiment %>% anti_join(stop_words, by = c("summaryWord" = "word")) -> tidy_sentiment
+```
+
+
+```{r preliminary analysis}
+# Count
+tidy_sentiment %>%
+  count(reviewWord, sort= TRUE) %>% 
+  filter(n > 100) %>% 
+  mutate(reviewWord = reorder(reviewWord, n)) %>% 
+  ggplot(aes(reviewWord, n)) +
+  geom_col() + 
+  xlab(NULL) +
+  coord_flip()
+```
+
+
+```{r sentiment_analysis_joy}
+get_sentiments("nrc")
+nrc_joy <- get_sentiments("nrc") %>% filter(sentiment == "joy")
+
+tidy_sentiment %>% 
+  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
+  count(document.id, sentiment, overall) %>% 
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative, linenumber = row_number()) -> joy_sentiment
+
+head(joy_sentiment)
+```
+
+```{r}
+ggplot(joy_sentiment, aes(linenumber, sentiment, fill = overall)) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~ overall, scales = "free_x")
+```
+
+```{r top10_positive}
+# Experimenting, will update soon.
+joy_sentiment %>% slice_max(sentiment, n = 100) -> top10pos
+
+ggplot(top10pos, aes(overall, sentiment)) + 
+  geom_point(show.legend = FALSE)
+```
+
+```{r top5_negative}
+joy_sentiment %>% slice_min(sentiment, n = 100) -> top10neg
+
+ggplot(top10neg, mapping = aes(overall, sentiment)) + 
+  geom_point()
+  
+```
+
+```{r plot_by_sentiment}
+tidy_sentiment %>%
+  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
+  count(reviewWord, sentiment, sort = TRUE) %>% 
+  ungroup() -> word_count
+
+word_count %>% 
+  group_by(sentiment) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(reviewWord = reorder(reviewWord, n)) %>% 
+  ggplot(aes(reviewWord, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment", x = NULL) + 
+  coord_flip()
+  
+```
+
+>>>>>>> Stashed changes
 
 
