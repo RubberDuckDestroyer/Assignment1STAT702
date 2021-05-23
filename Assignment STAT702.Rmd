@@ -7,7 +7,7 @@ editor_options:
 ---
 
 ```{r global-options, include=FALSE}
-knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, 
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,
                       fig.width=6, fig.height=4)
 ```
 
@@ -24,6 +24,10 @@ reviews_data <- as_tibble(reviews_data)
 sales_data <- read.csv("sales_data.csv")
 sales_data <- as_tibble(sales_data)
 ```
+
+##############################################
+Need to include formulas for question 2
+##############################################
 
 **Group 5**: Hitarth Asrani and Genevieve Connell
 
@@ -69,13 +73,13 @@ sales_data %>%
            ifelse(is_featured_sku == "1" & is_display_sku == "1", "Featured & Displayed", 
                   ifelse(is_featured_sku == "1", "Featured", 
                          ifelse(is_display_sku == "1", "Displayed", "None"))),
-         performance = # add weekly performance variable
+         weekly_performance = # add weekly performance variable
            ifelse(units_sold < summary(sales_data$units_sold)[2], "Low", 
                   ifelse(units_sold >summary(sales_data$units_sold)[5],"High","Average"))) %>% 
   filter(between(week, as_date("2011-01-01"), as_date("2013-07-30")))-> sales_219844
 
 # Order performance variable
-sales_219844$performance <- factor(sales_219844$performance, levels=c("High", "Average", "Low"))
+sales_219844$weekly_performance <- factor(sales_219844$weekly_performance, levels=c("High", "Average", "Low"))
 
 # Order promotion variable
 sales_219844$promotion <- factor(sales_219844$promotion, levels = c("Featured & Displayed", "Featured", "Displayed", "None"))
@@ -104,9 +108,6 @@ sales_219844 %>%
   summarise(total_units_sold = sum(units_sold),
             total_display = sum(is_display_sku), 
             total_featured = sum(is_featured_sku)) -> monthly_sales
-
-# Compute basic stats
-summary(monthly_sales$total_units_sold)
 
 # Identify outlier
 monthly_sales %>% 
@@ -145,7 +146,7 @@ sales_219844 %>%
   ggplot() + 
   geom_point(aes(x = week, y = units_sold, colour = promotion)) +
   scale_colour_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) +
-  ggtitle("Weekly sales for product 219844 with categories") +
+  ggtitle("Weekly sales for product 219844 with promotion categories") +
   xlab("Date") +
   ylab("Units sold")
 
@@ -156,7 +157,7 @@ sales_219844 %>%
   ggplot() +
   geom_bar(aes(x = month, y = total_units_sold, fill = promotion), stat = "identity") +
   scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) +
-  ggtitle("Monthly sales for product 219844 with categories") +
+  ggtitle("Monthly sales for product 219844 with promotion categories") +
   xlab("Date") +
   ylab("Units sold")
 
@@ -185,22 +186,18 @@ Marking criteria
 All stores have been ranked based on their total sales from Jan 2011 to
 July 2013. The store with the highest total units sold is ranked '1',
 this is store `r store_total_sales$store_id[1]` with
-`r store_total_sales$store_total[1]` units. Stores ranked 1-9 are
-performing highly. Stores 10 - 19 are performing adequately. Stores 20 -
-29 are performing poorly.
-
-
-|Rank|Store ID| Total sales|     |Rank|Store ID| Total sales|     |Rank|Store ID| Total sales|
-|:---|:-------|:-----------|:----|:---|:-------|:-----------|:---|:---|:-------|:-----------| 
-|`r store_total_sales$ranking[1]` |`r store_total_sales$store_id[1]` |`r store_total_sales$store_total[1]`||`r store_total_sales$ranking[10]` |`r store_total_sales$store_id[10]` |`r store_total_sales$store_total[10]`||`r store_total_sales$ranking[19]` |`r store_total_sales$store_id[19]` |`r store_total_sales$store_total[19]`
+`r store_total_sales$store_total[1]` units. 
 
 Below is a bar chart showing the total units sold with stores ordered by
 rank. Sales for 2013 are much lower than 2011 and 2012 as only half the
 years data is included.
 
-|`r store_total_sales$ranking[3]` |`r store_total_sales$store_id[2]` |`r store_total_sales$store_total[3]`|```{r 1b store totals}
+\|`r store_total_sales$ranking[3]` \|`r store_total_sales$store_id[2]`
+\|`r store_total_sales$store_total[3]`\|
+
+```{r 1b store totals}
 # Bar chart of total yearly sales for stores (ordered by rank)
-```{r}
+
 sales_219844 %>% 
   mutate(year = as.character(year)) %>% 
   group_by(store_id_ranked, year) %>% 
@@ -211,12 +208,11 @@ sales_219844 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_manual(values = c("#5BC0BE", "#3A506B", "#0B132B")) +
   ggtitle("Total units sold by each store") +
-  xlab("Store id (ranked)") +
+  xlab("Store id (ordered by rank)") +
   ylab("Total units sold")
 ```
 
-
-```{r 1bi}
+```{r 1b monthly sales categorised}
 # Subset monthly data for each store
 sales_219844 %>% 
   group_by(month, store_id_ranked, ranking) %>% 
@@ -225,62 +221,124 @@ sales_219844 %>%
 # Evaluate monthly performance based on interquartile range(over 3rd quartile = high, under 1st quartile = low, other = average)
 
 store_monthly %>%
-  mutate(performance =# add weekly performance variable
+  mutate(monthly_performance =# add weekly monthly performance variable
            ifelse(monthly_units < summary(store_monthly$monthly_units)[2], "Low", 
                   ifelse(monthly_units > summary(store_monthly$monthly_units)[5],"High","Average"))) -> store_monthly
 
 # Order performance variable
-store_monthly$performance <- factor(store_monthly$performance, levels=c("High", "Average", "Low"))
+store_monthly$monthly_performance <- factor(store_monthly$monthly_performance, levels=c("High", "Average", "Low"))
 ```
 
-Monthly performance has been classified for each store. An interquartile
-range for monthly sales has been calculated with the first quartile at
-`r summary(store_monthly$monthly_units)[2]` and the third quartile at
-`r summary(store_monthly$monthly_units)[5]`. Monthly sales greater than
-the third quartile are classified as 'High' performing. Sales
+Whilst some stores stand out with particularly high or low sales, many stores ranked in the middle have similar total sales. 
 
-```{r 1bii}
+For a more detailed look at store performance monthly sales have been plotted for each store and categorised as 'high', 'average' or 'low' performing. These categories are based on the interquartile range for monthly sales. This range is 
+`r summary(store_monthly$monthly_units)[2]` - 
+`r summary(store_monthly$monthly_units)[5]` and captures 50% of all monthly sales. Monthly sales within the range are classified as 'average', sales greater than `r summary(store_monthly$monthly_units)[5]` are classified as 'high' performing and those below `r summary(store_monthly$monthly_units)[2]` are classified as 'low' performing. 
+
+
+```{r fig.width=10, fig.height=12}
 ## PLOTS
 
-# Top 9 stores
 store_monthly %>% 
-  filter(ranking < 9) %>% 
   mutate(as.character(month)) %>% 
   ggplot()+
-  geom_point(aes(x = month, y = monthly_units, colour = performance)) + 
+  geom_point(aes(x = month, y = monthly_units, colour = monthly_performance)) + 
   facet_wrap(~ store_id_ranked, ncol = 4) +
   scale_colour_manual(values = c("#ffaa00","#F20045", "#581845")) +
-  ggtitle("Monthly performance classified for each store (top 9 stores)") + 
+  ggtitle("Monthly performance classified for each store (ordered by rank") + 
   xlab("Month") +
   ylab("Units sold")
 
-# Middle 9 stores
-store_monthly %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(month)) %>% 
-  ggplot()+
-  geom_point(aes(x = month, y = monthly_units, colour = performance)) + 
-  facet_wrap(~ store_id_ranked, ncol = 4) +
-  scale_colour_manual(values = c("#ffaa00","#F20045", "#581845")) +
-  ggtitle("Monthly performance classified for each store (middle 9 stores)") + 
-  xlab("Month") +
-  ylab("Units sold")
-  
-# Bottom 10 stores
-store_monthly %>% 
-  filter(ranking < 18, ranking > 9) %>% 
-  mutate(as.character(month)) %>% 
-  ggplot()+
-  geom_point(aes(x = month, y = monthly_units, colour = performance)) + 
-  facet_wrap(~ store_id_ranked, ncol = 4) +
-  scale_colour_manual(values = c("#ffaa00","#F20045", "#581845")) +
-  ggtitle("Monthly performance classified for each store (bottom 10 stores)") + 
-  xlab("Month") +
-  ylab("Units sold")
+store_9112 <- filter(store_monthly, store_id_ranked == "9112")
+store_9872 <- filter(store_monthly, store_id_ranked == "9872")
+
 
 ```
 
-```{r 1biii}
+An interesting feature of these plots is that some stores perform highly more consistently than others. For example store 9112 had 
+`r nrow(filter(store_9112, monthly_performance == "Low"))` low performing months but was ranked at `r store_9112$ranking[1]` much higher than store 9872 which had only `r nrow(filter(store_9872, monthly_performance == "Low"))` low performing months but was ranked `r store_9872$ranking[1]`. Despite having higher overall sales store 9112 was less reliably successful than store 9872 and so was ranked more highly.
+
+Stores with high occurrences of low sales are not reliable and are a source of risk. As an alternative to ranking stores based on their overall sales stores are ranked below using a consistency rating. For every high performing month stores are given a score of 3, for every average month a score of 2 and for every low performing month a score of 1. 
+
+```{r 1b consistency rating}
+# create ranking and order stores according to consistency rating
+store_monthly %>% 
+  mutate(score = ifelse(monthly_performance == "High", 3, 
+                           ifelse(monthly_performance == "Average", 2, 1))) %>% 
+  group_by(store_id_ranked) %>% 
+  summarise(consistency = sum(score)) %>% 
+  arrange(desc(consistency)) %>%
+  mutate(rank_consistency = seq(1:28),
+         overall_performance = ifelse(rank_consistency < 10, "High", 
+                                      ifelse(rank_consistency < 19, "Average", "Low")),
+         store_id_ranked_consistency = store_id_ranked) -> store_consistency
+
+
+# Order store_id_ranked_consistency by consistency ranking
+x <- (store_consistency$store_id_ranked_consistency)
+
+store_consistency$store_id_ranked_consistency <- factor(store_consistency$store_id_ranked_consistency, levels = x)
+
+# Add store consistency to main dataframe
+sales_219844 %>% 
+  left_join(store_consistency, by = "store_id_ranked") -> sales_219844
+
+# Add store consistency to store_monthly data frame
+store_monthly %>% 
+  left_join(store_consistency, by = "store_id_ranked") -> store_monthly
+
+# Order performance variable
+sales_219844$overall_performance <- factor(sales_219844$overall_performance, levels=c("High", "Average", "Low"))
+```
+
+Below is a plot showing stores ordered according to the new consistency rank along with the number of High, Average and Low performing months they achieved. Another plot is included for comparison where stores are ranked according to overall sales. Under the new consistency ranking scheme stores with unreliable performance  such as 9112 drop in rank whilst stores with reliable performance such as 9532 are ranked more highly. 
+
+```{r 1b count of monthly performance}
+# Number of months in each performance category for each store
+store_monthly %>% 
+  ggplot() +
+  geom_bar(aes(x = store_id_ranked_consistency, fill = monthly_performance)) +
+  scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle("Number of months in each performance category for each store") +
+  xlab("Store id (ordered by consistency rank)") +
+  ylab("count")
+
+# Number of months in each performance category for each store
+store_monthly %>% 
+  ggplot() +
+  geom_bar(aes(x = store_id_ranked, fill = monthly_performance)) +
+  scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle("Number of months in each performance category for each store") +
+  xlab("Store id (ordered by overall sales)") +
+  ylab("count")
+```
+
+```{r }
+sales_219844%>%
+  ggplot()+
+  geom_point(aes(x= store_id_ranked_consistency, y = store_total, colour = overall_performance)) +
+  ggtitle("Stores with overall performance and total sales") +
+  xlab("Store id (ordered by consistency)") +
+  ylab("Total sales") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_colour_manual(values = c("#ffaa00","#F20045", "#581845"))
+```
+
+Overall this consistency ranking seems most appropriate for sales performance as it rewards stores with reliable monthly sales. This consistency ranking is used to split stores into three groups of overall performance. The top third of stores (consistency rank 1-9) are evaluated as 'High' performing. The middle third of stores (rank 10-18) are evaluated as having 'Average' performance and stores in the bottom third (rank 19-28) are evaluated as 'Low' performing. 
+
+Those ranked in the top third of stores (rank 1 - 9) are evaluated to be high performing. Those ranked in the middle third of stores (rank 10 - 18) are evaluated to have average performance. Those ranked in the top third of stores (rank 19 - 28) are evaluated to be low performing. 
+
+```{r 1b}
+# Plot showing weekly performance for each promotion condition
+sales_219844 %>% 
+  ggplot() +
+  geom_bar(aes(x = promotion, fill = weekly_performance), position ="fill") +
+  scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
+  ggtitle("Proportion of weekly monthly_performance under each promotion condition")
+
+
 # Bar chart of units sold under each promotion for stores
 sales_219844 %>% 
   group_by(store_id_ranked, promotion) %>% 
@@ -306,15 +364,6 @@ sales_219844 %>%
   scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) + 
   ggtitle("") +
   xlab("Store id (ordered by rank)")
-
-  
-# Plot showing high performance more likely if product is featured and/or displayed
-sales_219844 %>% 
-  ggplot() +
-  geom_bar(aes(x = promotion, fill = performance), position ="fill") +
-  scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
-  ggtitle("Proportion of ")
-
 
 # Bar plot showing proportion of weeks product on display vs store ranking
 sales_219844 %>% 
