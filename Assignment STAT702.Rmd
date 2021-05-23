@@ -115,22 +115,16 @@ monthly_sales %>%
   slice_max(total_units_sold) -> outlier
 ```
 
-From Jan 2011 - July 2013 `r sum(monthly_sales$total_units_sold)` units
+From Jan 2011 - July 2013,  `r sum(monthly_sales$total_units_sold)` units
 of sku 219844 were sold with a mean monthly sale of
-`r mean(monthly_sales$total_units_sold)`. The interquartile range
-is`r summary(monthly_sales$total_units_sold)[2]`
--`r summary(monthly_sales$total_units_sold)[5]`. This means 50% of
-monthly sales lie within this range.
+`r round(mean(monthly_sales$total_units_sold), 1)` and an interquartile range
+of `r round(summary(monthly_sales$total_units_sold)[2], 2)`
+- `r round(summary(monthly_sales$total_units_sold)[5], 2)`.
 
 Monthly sales are plotted below, no trend or seasonal pattern is evident
-in this plot. There are three months with significantly more sales, May
+in this plot. There are three months with significantly high sales, May
 2011, December 2011 and Januarary 2012. The most significant outlier was
-on `r outlier$date` when `r outlier$total_units_sold` units were sold.
-
-In these months a large proportion of sales were made at stores where
-product 219844 was featured and/or displayed. In the scatterplot there
-is a pattern of high weekly store sales where products are featured
-and/or displayed.
+in January 2012 when `r outlier$total_units_sold` units were sold. As shown in the plots below these high monthly sales correspond with a high proportion of stores featuring and/or displaying the product.
 
 ```{r 1a plots}
 
@@ -192,9 +186,6 @@ Below is a bar chart showing the total units sold with stores ordered by
 rank. Sales for 2013 are much lower than 2011 and 2012 as only half the
 years data is included.
 
-\|`r store_total_sales$ranking[3]` \|`r store_total_sales$store_id[2]`
-\|`r store_total_sales$store_total[3]`\|
-
 ```{r 1b store totals}
 # Bar chart of total yearly sales for stores (ordered by rank)
 
@@ -229,16 +220,13 @@ store_monthly %>%
 store_monthly$monthly_performance <- factor(store_monthly$monthly_performance, levels=c("High", "Average", "Low"))
 ```
 
-Whilst some stores stand out with particularly high or low sales, many stores ranked in the middle have similar total sales. 
-
-For a more detailed look at store performance monthly sales have been plotted for each store and categorised as 'high', 'average' or 'low' performing. These categories are based on the interquartile range for monthly sales. This range is 
+For a more detailed look at store performance monthly sales have been plotted for each store and categorised as 'High', 'Average' or 'Low' performing. These categories are based on the interquartile range for monthly sales. This range is 
 `r summary(store_monthly$monthly_units)[2]` - 
-`r summary(store_monthly$monthly_units)[5]` and captures 50% of all monthly sales. Monthly sales within the range are classified as 'average', sales greater than `r summary(store_monthly$monthly_units)[5]` are classified as 'high' performing and those below `r summary(store_monthly$monthly_units)[2]` are classified as 'low' performing. 
+`r summary(store_monthly$monthly_units)[5]` and captures 50% of all monthly sales. Monthly sales within the range are classified as 'Average', sales greater than `r summary(store_monthly$monthly_units)[5]` are classified as 'High' performing and those below `r summary(store_monthly$monthly_units)[2]` are classified as 'Low' performing. 
 
 
-```{r fig.width=10, fig.height=12}
-## PLOTS
-
+```{r store plots, fig.width=10, fig.height=12}
+# Plots of monthly sales
 store_monthly %>% 
   mutate(as.character(month)) %>% 
   ggplot()+
@@ -249,16 +237,15 @@ store_monthly %>%
   xlab("Month") +
   ylab("Units sold")
 
+# Data subset for analysis
 store_9112 <- filter(store_monthly, store_id_ranked == "9112")
 store_9872 <- filter(store_monthly, store_id_ranked == "9872")
-
-
 ```
 
-An interesting feature of these plots is that some stores perform highly more consistently than others. For example store 9112 had 
-`r nrow(filter(store_9112, monthly_performance == "Low"))` low performing months but was ranked at `r store_9112$ranking[1]` much higher than store 9872 which had only `r nrow(filter(store_9872, monthly_performance == "Low"))` low performing months but was ranked `r store_9872$ranking[1]`. Despite having higher overall sales store 9112 was less reliably successful than store 9872 and so was ranked more highly.
+An interesting feature of these plots is that some stores have more consistent performance than others. For example store 9112 had 
+`r nrow(filter(store_9112, monthly_performance == "Low"))` low performing months but was ranked at `r store_9112$ranking[1]`, much higher than store 9872 which had only `r nrow(filter(store_9872, monthly_performance == "Low"))` low performing month but was ranked `r store_9872$ranking[1]`. Despite having higher overall sales store 9112 was less reliably successful than store 9872.
 
-Stores with high occurrences of low sales are not reliable and are a source of risk. As an alternative to ranking stores based on their overall sales stores are ranked below using a consistency rating. For every high performing month stores are given a score of 3, for every average month a score of 2 and for every low performing month a score of 1. 
+Stores with high occurrences of low sales are not reliable and are a source of risk. As an alternative to ranking stores based on their overall sales, stores have been given a ranking based on their consistency. For every high performing month stores are given a score of 3, for every average month a score of 2 and for every low performing month a score of 1. 
 
 ```{r 1b consistency rating}
 # create ranking and order stores according to consistency rating
@@ -315,6 +302,8 @@ store_monthly %>%
   ylab("count")
 ```
 
+Overall this consistency ranking seems most appropriate for sales performance as it rewards stores with reliable monthly sales. Consistency ranking has been used to split stores into three groups of overall performance. The top third of stores (consistency rank 1-9) are evaluated as 'High' performing. The middle third of stores (rank 10-18) are evaluated as having 'Average' performance and stores in the bottom third (rank 19-28) are evaluated as 'Low' performing. 
+
 ```{r }
 sales_219844%>%
   ggplot()+
@@ -326,9 +315,9 @@ sales_219844%>%
   scale_colour_manual(values = c("#ffaa00","#F20045", "#581845"))
 ```
 
-Overall this consistency ranking seems most appropriate for sales performance as it rewards stores with reliable monthly sales. This consistency ranking is used to split stores into three groups of overall performance. The top third of stores (consistency rank 1-9) are evaluated as 'High' performing. The middle third of stores (rank 10-18) are evaluated as having 'Average' performance and stores in the bottom third (rank 19-28) are evaluated as 'Low' performing. 
+Below is a plot showing that when a product is featured and/or displayed weekly sales are more likely to be high. Weekly performance has been categorised into 'High', 'Average' and 'Low' based on the interquartile range of weekly sales. When the product is featured and/or displayed a higher proportion of weekly sales have been 'High' or 'Average' compared to no promotion. 
 
-Those ranked in the top third of stores (rank 1 - 9) are evaluated to be high performing. Those ranked in the middle third of stores (rank 10 - 18) are evaluated to have average performance. Those ranked in the top third of stores (rank 19 - 28) are evaluated to be low performing. 
+Low performing stores could boost their sales by increasing the number of weeks they promote the product. For high performing stores, performance reliability could be improved by introducing a weekly promotion if sales are unusually low.
 
 ```{r 1b}
 # Plot showing weekly performance for each promotion condition
@@ -336,41 +325,7 @@ sales_219844 %>%
   ggplot() +
   geom_bar(aes(x = promotion, fill = weekly_performance), position ="fill") +
   scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
-  ggtitle("Proportion of weekly monthly_performance under each promotion condition")
-
-
-# Bar chart of units sold under each promotion for stores
-sales_219844 %>% 
-  group_by(store_id_ranked, promotion) %>% 
-  summarise(total_units = sum(units_sold)) %>% 
-  ggplot() +
-  geom_bar(aes(x = store_id_ranked, y = total_units, fill = promotion),  
-           stat = "identity", 
-           position = "dodge") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) + 
-  ggtitle("Store sales for each promotion category") +
-  xlab("Store id (ordered by rank)") +
-  ylab("Units sold")
-
-# instead of this could do something like number of weeks with promotion ordered by rank
-sales_219844 %>% 
-  group_by(store_id_ranked,week, promotion) %>% 
-  summarise() %>% 
-  ggplot() +
-  geom_bar(aes(x = store_id_ranked, fill = promotion), 
-           position = "dodge") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B")) + 
-  ggtitle("") +
-  xlab("Store id (ordered by rank)")
-
-# Bar plot showing proportion of weeks product on display vs store ranking
-sales_219844 %>% 
-  ggplot() +
-  geom_bar(aes(x = ranking, fill = promotion)) +
-  scale_fill_manual(values = c("#D62246", "#4B1D3F", "#19D4D1", "#0E7C7B"))
-
+  ggtitle("Proportion of weekly performance under each promotion condition")
 ```
 
 # Question 2
@@ -383,10 +338,14 @@ sales_219844 %>%
 
 ## i) Determine the best order quantity in such a way that the costs are minimised. Write 1 -- 2 paragraphs summarising your findings.
 
-Marking criteria • Number of orders during a year, number of days
-between orders, and the total annual inventory cost are correctly
-computed and included in the findings. • The paragraphs clearly explain
-your findings. • Assumptions of the EOQ model are clearly stated
+Marking criteria
+
+• Number of orders during a year, number of days between orders, and the total annual inventory cost are correctly computed and included in the findings. 
+
+• The paragraphs clearly explain
+your findings. 
+
+• Assumptions of the EOQ model are clearly stated
 
 ```{r 2ai}
 # Annual demand in 2012 for product 216233
@@ -419,19 +378,15 @@ segments(x0 = c(0,t), y0 = 0, x1 = c(0,t), y1 = Q)  # vertical
 
 ```
 
-Optimum order quantity is `r Q`
+The EOQ model is used to find the best order quantity so that costs are minimised. There are three key assumptions to this model, these are that demand is constant and known, there is no lead time and no back orders are allowed. 
 
-Inventory cycle is `r t`
+Demand for product 216233 has been estimated based on the annual demand from 2012, this is `r A`. Given this annual demand and the holding and set up costs the optimum order quantity is calculated to be `r Q` with an inventory cycle of `r t`. Optimum ordering quantity is caluclated using the following formula.
 
-Annual inventory cost is `r Tc`
+$  $
 
-Assumptions of EOQ model:
 
-Known and constant demand
+This means that every `r t` days `r Q` units are ordered. This model results in the smallest possible annual inventory cost of `r Tc`.
 
-No lead time - orders arrive instantaneously
-
-No back orders
 
 ## ii) The Operations Manager is also interested in studying a model in
 
