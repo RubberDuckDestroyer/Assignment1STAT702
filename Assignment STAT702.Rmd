@@ -33,7 +33,7 @@ sales_data <- as_tibble(sales_data)
 
 **Sales sku_id**: 219884
 
-**Reviews asin**: B00006IE7J
+**Reviews asin**: B00006IE7J 
 
 # 1 Analysis of Sales Data
 
@@ -120,7 +120,7 @@ of `r round(summary(monthly_sales$total_units_sold)[2], 2)`
 
 Monthly sales are plotted below, no trend or seasonal pattern is evident
 in this plot. There are three months with significantly high sales, May
-2011, December 2011 and Januarary 2012. The most significant outlier was
+2011, December 2011 and January 2012. The most significant outlier was
 in January 2012 when `r outlier$total_units_sold` units were sold. As shown in the plots below these high monthly sales correspond with a high proportion of stores featuring and/or displaying the product.
 
 ```{r 1a plots}
@@ -711,19 +711,135 @@ ggplot() +
 
 # Question 3
 
-## Question 3a
+## a) For the product (asin) that has been assigned to your group, use summary statistics and plots to analyse the overall review rating (overall). Write a paragraph describing your findings to the General Manager - sales.
+Marking Criteria
+• Summary statistics for the overall review rating have been correctly computed and are displayed in appropriate plot/s.
+• Descriptionsofresultsandplotsarecorrectandprovideusefulinsights.
+• Plot/sareconstructedusingggplot2andhaveappropriatetitles,labels,scalesetc.
 
+
+## Answe
+First, we filter the reviews to show data only assigned to us. Asigned number: B00006IE7J
+We are also checking the head of the filtered data to confirm that we have the correct data.
 ```{r 3a}
 reviews_data %>%
   filter(asin == "B00006IE7J") -> my_reviews
 
 head(my_reviews)
+```
+
+Summarising the results, we get the following:
+```{r}
 summary(my_reviews$overall)
+```
 
 
+We plot the overall against the count to get a visual representation of the reviews. By flipping the co-ordinates the representation is similar to a representation of reviews on a website.
+```{r 3a-plot}
 # Stats - plots 
 ggplot(data = my_reviews) +
-  geom_bar(mapping = aes(x=overall, fill=overall))
-
-
+  geom_bar(mapping = aes(x=overall, fill=overall)) +
+  coord_flip()
 ```
+The plot above shows us that the product is highly rated for 5 stars, way more than any other rating. The reviews are overall positive with a few negative reviews.
+
+## Question 3b
+
+Using tidytext, going to tidy the data. First, we select the rows we want to use for the sentiment analysis
+```{r sentiment_data}
+library(tidytext)
+sentiment_dat = my_reviews %>% select(document.id, overall, verified, reviewText, summary)
+head(sentiment_dat)
+```
+
+We clean the data by using `unnest_tokens` to tokenize the `reviewText` column. We also add a column representing the line number for the data
+
+```{r tidy_data}
+# Tidying
+sentiment_dat %>% 
+  unnest_tokens(output = reviewWord, input = reviewText) -> tidy_sentiment
+
+# Add Row Number
+tidy_sentiment %>% mutate(linenumber = row_number()) -> tidy_sentiment
+head(tidy_sentiment)
+```
+
+Now, we remove the stop words. Our stop words are taken from the `stop_words` dataset included in tidytext. By using an anti_join, we are able to filter out the stop words.
+```{r remove_stop_words}
+# Remove Stop Words
+data("stop_words")
+tidy_sentiment %>% anti_join(stop_words, by = c("reviewWord" = "word")) -> tidy_sentiment
+```
+
+Below, we plot the words in the cleaned dataset, according to the number of times they are present in the dataset.
+```{r preliminary analysis}
+# Count
+tidy_sentiment %>%
+  count(reviewWord, sort= TRUE) %>% 
+  filter(n > 100) %>% 
+  mutate(reviewWord = reorder(reviewWord, n)) %>% 
+  ggplot(aes(reviewWord, n)) +
+  geom_col() + 
+  xlab(NULL) +
+  coord_flip()
+```
+On an initial analysis, we can see that the word `pen(s)` has been used the most. Since this word describes our product, it is used quite often in the reviews. After that, customers mention the price of the item a lot more than any thing else. The rest of the words are used to describe the product and it's features.
+
+Using the 
+
+```{r sentiment_analysis_joy}
+tidy_sentiment %>% 
+  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
+  count(document.id, sentiment, overall) %>% 
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative, linenumber = row_number()) -> joy_sentiment
+head(joy_sentiment)
+```
+The mean sentiment of all reviews is `r mean(joy_sentiment$sentiment)`. 
+
+We plot the 
+```{r sentiment_plot}
+ggplot(joy_sentiment, aes(linenumber, sentiment, fill = overall)) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~ overall, scales = "free_x")
+```
+
+
+```{r top10_positive}
+# Experimenting, will update soon.
+joy_sentiment %>% slice_max(sentiment, n = 100) -> top10pos
+ggplot(top10pos, aes(overall, sentiment)) + 
+  geom_point(show.legend = FALSE)
+```
+
+
+```{r top5_negative}
+joy_sentiment %>% slice_min(sentiment, n = 100) -> top10neg
+ggplot(top10neg, mapping = aes(overall, sentiment)) + 
+  geom_point()
+  
+```
+
+Finally, we plot the words against their occurance, based on their contributions to the sentiment. 
+```{r plot_by_sentiment}
+tidy_sentiment %>%
+  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
+  count(reviewWord, sentiment, sort = TRUE) %>% 
+  ungroup() -> word_count
+word_count %>% 
+  group_by(sentiment) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(reviewWord = reorder(reviewWord, n)) %>% 
+  ggplot(aes(reviewWord, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment", x = NULL) + 
+  coord_flip()
+  
+```
+The word `cheap` contributes the most to negative reviews and the word `love` contributes most to the positive reviews. 
+
+Conducting the analysis, one can safely say that the price and user's experience contribute greatly to the sentiment of a customer's review. If a customer's purchase contains itms that tend to be defective, their review is going to be more negative.
+
+On the other hand, most of the reviews are positive, with a rating between four and five stars. The words in the convetributing to a positive sentiment depict a positive user experience. The user also tends to recommend the product to other potential users if they have a positive experience.
