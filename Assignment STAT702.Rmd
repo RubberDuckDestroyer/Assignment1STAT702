@@ -1,5 +1,5 @@
----
 title: "Assignment STAT702"
+---
 output: pdf_document
 editor_options: 
   markdown: 
@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,
 library(tidyverse)
 library(lubridate)
 library(viridis)
+library(tidytext)
 
 # Read in data sets and convert to tibbles
 reviews_data <- read.csv("reviews_data.csv")
@@ -714,32 +715,36 @@ ggplot() +
 ## a) For the product (asin) that has been assigned to your group, use summary statistics and plots to analyse the overall review rating (overall). Write a paragraph describing your findings to the General Manager - sales.
 Marking Criteria
 • Summary statistics for the overall review rating have been correctly computed and are displayed in appropriate plot/s.
-• Descriptionsofresultsandplotsarecorrectandprovideusefulinsights.
+• Descriptions of results and plots are correct and provide useful insights.
 • Plot/sareconstructedusingggplot2andhaveappropriatetitles,labels,scalesetc.
 
 
-## Answe
-First, we filter the reviews to show data only assigned to us. Asigned number: B00006IE7J
-We are also checking the head of the filtered data to confirm that we have the correct data.
+## Answer
+First, we filter the reviews to show product B00006IE7J and then check the head of the filtered data to check this has been successful. The mean overall ranking for this product is `r  summary(my_reviews$overall)[4]`. The plot below show the number of reviews in each overall ranking. 
+
 ```{r 3a}
+# Filter data
 reviews_data %>%
   filter(asin == "B00006IE7J") -> my_reviews
-
+# Display head
 head(my_reviews)
+
+# Stats - plots 
+ggplot(data = my_reviews) +
+  geom_bar(mapping = aes(x=overall, fill=overall)) +
+  coord_flip()
+
 ```
 
-Summarising the results, we get the following:
 ```{r}
 summary(my_reviews$overall)
 ```
 
 
 We plot the overall against the count to get a visual representation of the reviews. By flipping the co-ordinates the representation is similar to a representation of reviews on a website.
+
 ```{r 3a-plot}
-# Stats - plots 
-ggplot(data = my_reviews) +
-  geom_bar(mapping = aes(x=overall, fill=overall)) +
-  coord_flip()
+
 ```
 The plot above shows us that the product is highly rated for 5 stars, way more than any other rating. The reviews are overall positive with a few negative reviews.
 
@@ -799,25 +804,69 @@ The mean sentiment of all reviews is `r mean(joy_sentiment$sentiment)`.
 
 We plot the 
 ```{r sentiment_plot}
+# ordered by overall rating
+joy_sentiment %>% 
+  arrange(overall) %>% 
+  mutate(line_ranked = row_number()) %>% 
+  ggplot() +
+  geom_col(aes(x = line_ranked, sentiment, fill = overall)) + 
+  scale_fill_viridis(option = "A")
+
+# ordered by sentiment
+joy_sentiment %>% 
+  arrange(sentiment) %>% 
+    mutate(line_ranked = row_number()) %>% 
+  ggplot() +
+  geom_col(aes(x = line_ranked, sentiment, fill = overall)) + 
+  scale_fill_viridis(option = "A")
+
+# unordered
 ggplot(joy_sentiment, aes(linenumber, sentiment, fill = overall)) + 
-  geom_col(show.legend = FALSE) + 
-  facet_wrap(~ overall, scales = "free_x")
+  geom_col() + 
+  scale_fill_viridis(option = "A")
+
+# distribution
+joy_sentiment %>% 
+  ggplot() +
+  geom_point(aes(x = overall, y = sentiment), position ="jitter")
+
+# box plot of distribution
+joy_sentiment %>% 
+  ggplot() +
+  geom_boxplot(aes(x = sentiment, y= overall, group = overall))
+
+
 ```
 
 
-```{r top10_positive}
+```{r top100_positive}
 # Experimenting, will update soon.
 joy_sentiment %>% slice_max(sentiment, n = 100) -> top10pos
 ggplot(top10pos, aes(overall, sentiment)) + 
-  geom_point(show.legend = FALSE)
+  geom_point(show.legend = FALSE, position = "jitter")
+
+outlier <- my_reviews %>% 
+  filter(document.id == 52767)
 ```
 
 
-```{r top5_negative}
+```{r top100_negative}
 joy_sentiment %>% slice_min(sentiment, n = 100) -> top10neg
 ggplot(top10neg, mapping = aes(overall, sentiment)) + 
   geom_point()
   
+```
+
+```{r proportion}
+# Plot showing proportion of negative and positive sentiment allocation to each overall rating class
+
+joy_sentiment %>% 
+  mutate(sentiment_2 = ifelse(sentiment > 0, "Positive", "Negative")) %>% 
+  ggplot() +
+  geom_bar(aes(x = overall, fill = sentiment_2), position = "fill") +
+  ggtitle("Proportion of Negative and Positive sentiment") +
+  xlab("Overall Rating") +
+  ylab("Proportion")
 ```
 
 Finally, we plot the words against their occurance, based on their contributions to the sentiment. 
