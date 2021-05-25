@@ -636,9 +636,7 @@ ggplot() +
 
 ```
 
-## 2.b.ii. Investigate the use of a multi-period inventory model for the product which has been assigned to your group, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b) above.
-
-Discuss the assumptions of the model and suggest a solution, in case of finding any problems. Write a paragraph explaining the results of your findings and the plot.
+## 2.b.ii. Investigate the use of a multi-period inventory model for the product which has been assigned to your group, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b) above. Discuss the assumptions of the model and suggest a solution, in case of finding any problems. Write a paragraph explaining the results of your findings and the plot.
 
 ## Answer
 ```{r 2bii}
@@ -713,9 +711,6 @@ tac2 <- hc_normal + oc
 
 For this multi-inventory model, demand during a one week lead time has been estimated using the mean and standard deviation of observed data in 2012. Demand has been estimated as a normal distribution with a mean of `r round(mean, 0)` and standard deviation of `r round(sd, 0)`. As the plot below shows this distribution is a very poor fit for the observed data. It is recommended that a more accurate distribution is used for estimating the Lead-Time distribution and reorder point. It is likely that the reorder point calculated with this normal distribution is unnecessarily high. 
 
-The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r round(tac, 2)` per year. If demand was certain
-the annual costs would only be `r round(tac2, 2)` so the additional cost of holding
-safety stock is `r round((tac - tac2),2)`.
 
 ```{r 2bii plot}
 # Plot observations against estimated lead-time distribution
@@ -731,6 +726,36 @@ ggplot() +
   xlab("Quantity") +
   ylab("Density")
 ```
+
+The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r round(tac, 2)` per year. If demand was certain
+the annual costs would only be `r round(tac2, 2)` so the additional cost of holding
+safety stock is `r round((tac - tac2),2)`.
+
+```{r fixed_plot}
+weekly_sales %>% 
+ggplot() +
+  geom_histogram(aes(x = quantity, y = ..density..),
+               binwidth = 300, 
+               colour = "black") + 
+  geom_density(aes(x = quantity)) +
+  ggtitle("Lead-Time distributed plotted with actual distribution for 219844") +
+  xlab("Quantity") +
+  ylab("Density")
+
+weekly_sales %>% 
+ggplot() +
+  geom_histogram(aes(x = quantity, y = ..density..),
+               binwidth = 300, 
+               colour = "black") + 
+  stat_function(fun = dnorm, 
+              args = list(mean = median(weekly_sales$quantity), 
+                          sd = IQR(weekly_sales$quantity))) +
+  ggtitle("Lead-Time distributed plotted with actual distribution for 219844") +
+  xlab("Quantity") +
+  ylab("Density")
+
+```
+
 
 # Question 3
 
@@ -1009,7 +1034,6 @@ tidy_sentiment %>%
 ```
 On an initial analysis, we can see that the word `pen(s)` has been used the most. Since this word describes our product, it is used quite often in the reviews. After that, customers mention the price of the item a lot more than any thing else. The rest of the words are used to describe the product and it's features.
 
-Using the 
 
 ```{r sentiment_analysis_joy}
 tidy_sentiment %>% 
