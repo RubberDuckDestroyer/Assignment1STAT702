@@ -355,13 +355,9 @@ sales_219844 %>%
 
 # Question 2
 
-## (a) The Operations Manager is interested in studying an EOQ model for
+## (a) The Operations Manager is interested in studying an EOQ model for product 216233, based on sales in 2012. The setup and holding costs are known to be 130 per order and 1.50 per unit per year, respectively.
 
-    product 216233, based on sales in 2012. The setup and holding costs
-    are known to be 130 per order and 1.50 per unit per year,
-    respectively.
-
-## i) Determine the best order quantity in such a way that the costs are minimised. Write 1 -- 2 paragraphs summarising your findings.
+### i) Determine the best order quantity in such a way that the costs are minimised. Write 1 -- 2 paragraphs summarising your findings.
 
 Marking criteria
 
@@ -371,6 +367,8 @@ Marking criteria
 your findings. 
 
 • Assumptions of the EOQ model are clearly stated
+
+## Answer
 
 ```{r 2ai}
 # Annual demand in 2012 for product 216233
@@ -410,7 +408,7 @@ segments(x0 = c(0,t), y0 = 0, x1 = c(0,t), y1 = Q)  # vertical
 
 ```
 
-## ii) The Operations Manager is also interested in studying a model in which backorders are permitted. According to its estimates, the cost of backorders is approximately 5% of the total price (price per unit). Determine the best order quantity in the sense that inventory costs are minimised. Write 1 -- 2 paragraphs summarising your findings and plot the first two inventory cycles.
+### ii) The Operations Manager is also interested in studying a model in which backorders are permitted. According to its estimates, the cost of backorders is approximately 5% of the total price (price per unit). Determine the best order quantity in the sense that inventory costs are minimised. Write 1 -- 2 paragraphs summarising your findings and plot the first two inventory cycles.
 
 • The optimum order quantity, maximum level of stock,
 optimum time between orders, proportion of time the company have to take
@@ -423,6 +421,8 @@ included in your answer.
 
 • The first two inventory cycles are correctly plotted
 
+
+## Answer
 ```{r 2aii}
 # Annual demand in 2012 for product 216233
 sales_data %>% 
@@ -477,7 +477,7 @@ segments(x0 = c(0,t), y0 = -bo, x1 = c(0,t), y1 = S)  # vertical
 segments(x0 = c(0,t), y0 = 0, x1 = c(t,2*t), y1 = 0) # horizontal 
 ```
 
-## iii) Plot the inventory cycles associated with the model in part ii and compare with the observed inventory levels in 2012, assuming actual demand during 2012, and the order frequency and order quantity from the model. Write 2 -- 3 sentences describing your plot.
+### iii) Plot the inventory cycles associated with the model in part ii and compare with the observed inventory levels in 2012, assuming actual demand during 2012, and the order frequency and order quantity from the model. Write 2 -- 3 sentences describing your plot.
 
 • The inventory levels from the model and data are correctly plotted. 
 
@@ -487,7 +487,7 @@ plot.
 • Note: This is a bonus question. The maximum mark that could be
 awarded for this project is 100
 
-
+## Answer
 ```{r 2aiii}
 # Calculate weekly sales in 2012 for product 216233
 sales_data %>% 
@@ -526,15 +526,9 @@ The plot above shows the weekly demand from the 2012 sales data plotted with the
 
 Actual demand is not constant and as a result the quantity and frequency found with the back order model is not always appropriate. The model performs best when demand is constant, for example in July. 
 
-# 2b
+## 2b The Operations Manager is considering the option of a multi-period inventory model. The company, as a policy, is not willing to tolerate more than 5% chance of a stock-out. The Operations Manager has estimated that the annual holding cost is 6.50 per unit and the ordering cost is 20.50 per order.
 
-The Operations Manager is considering the option of a multi-period
-inventory model. The company, as a policy, is not willing to tolerate
-more than 5% chance of a stock-out. The Operations Manager has estimated
-that the annual holding cost is 6.50 per unit and the ordering cost is
-20.50 per order.
-
-## i.  Calculate a multi-period inventory model for product 216425, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b)above. Write a paragraph explaining the results of your model and the plot/s.
+### i.  Calculate a multi-period inventory model for product 216425, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b)above. Write a paragraph explaining the results of your model and the plot/s.
 
 Hint: Use the weekly demand to estimate the demand during a one-week
 lead time.
@@ -550,6 +544,7 @@ discussed.
 • The weekly average demand of this product is correctly
 plotted and discussed
 
+## Answer
 ```{r 2bi}
 # Calculate weekly sales in 2012 for product 216425
 sales_data %>% 
@@ -619,12 +614,11 @@ tac <- hc_normal + hc_safety + oc
 # annual cost with no safety stock
 tac2 <- hc_normal + oc
 ```
-
 For this multi-inventory model demand during a one week lead time has been estimated using the mean and standard deviation of observed data in 2012. Demand has been estimated as a normal distribution with a mean of `r round(mean, 0)` and standard deviation of `r round(sd, 0)`. As the plot below shows, whilst the actual demand for 2012 does not perfectly follow this distribution it is a adequate approximation. 
 
-The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r tac` per year. If demand was certain
-the annual costs would only be `r tac2` so the additional cost of holding
-safety stock is `r tac - tac2`.
+The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r round(tac, 2)` per year. If demand was certain
+the annual costs would only be `r round(tac2, 2)` so the additional cost of holding
+safety stock is `r round((tac - tac2), 2)`.
 
 ```{r 2bi plot}
 # Plot observations against estimated lead-time distribution
@@ -644,8 +638,9 @@ ggplot() +
 
 ## 2.b.ii. Investigate the use of a multi-period inventory model for the product which has been assigned to your group, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b) above.
 
-## Discuss the assumptions of the model and suggest a solution, in case of finding any problems. Write a paragraph explaining the results of your findings and the plot.
+Discuss the assumptions of the model and suggest a solution, in case of finding any problems. Write a paragraph explaining the results of your findings and the plot.
 
+## Answer
 ```{r 2bii}
 # Calculate weekly sales in 2012 for product 219844
 sales_data %>% 
@@ -716,11 +711,11 @@ tac2 <- hc_normal + oc
 
 ```
 
-For this multi-inventory model demand during a one week lead time has been estimated using the mean and standard deviation of observed data in 2012. Demand has been estimated as a normal distribution with a mean of `r round(mean, 0)` and standard deviation of `r round(sd, 0)`. As the plot below shows this distribution is a very poor fit for the observed data. It is recommended that a more accurate distribution is used for estimating the Lead-Time distribution and reorder point. It is likely that the reorder point calculated with this normal distribution is unnecessarily high. 
+For this multi-inventory model, demand during a one week lead time has been estimated using the mean and standard deviation of observed data in 2012. Demand has been estimated as a normal distribution with a mean of `r round(mean, 0)` and standard deviation of `r round(sd, 0)`. As the plot below shows this distribution is a very poor fit for the observed data. It is recommended that a more accurate distribution is used for estimating the Lead-Time distribution and reorder point. It is likely that the reorder point calculated with this normal distribution is unnecessarily high. 
 
-The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r tac` per year. If demand was certain
-the annual costs would only be `r tac2` so the additional cost of holding
-safety stock is `r tac - tac2`.
+The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r round(tac, 2)` per year. If demand was certain
+the annual costs would only be `r round(tac2, 2)` so the additional cost of holding
+safety stock is `r round((tac - tac2),2)`.
 
 ```{r 2bii plot}
 # Plot observations against estimated lead-time distribution
@@ -810,6 +805,7 @@ my_reviews %>%
   xlab("Date") +
   ylab("Rating")
 ```
+PLotting the number of reviews, we can confirm that the majority of reviews are rated an overall of 5 out of 5.
 
 ## Question 3b
 
@@ -854,7 +850,10 @@ tidy_sentiment_gc %>%
   xlab(NULL) +
   coord_flip() +
   ggtitle("Frequency words were used in reviews")
+```
+In the plot above we can see a few words that can be considered as stop words. Words like `pen` and `stars` are not very valuable to the sentiment. These words are removed from the data set as well.
 
+```{r remove_custom_stopwords}
 # Remove words pen, pens, stars, bic
 custom_stop_words <- bind_rows(tibble(word = c("pens", "pen", "stars"),
 lexicon = c("custom")),
@@ -1089,7 +1088,7 @@ joy_sentiment %>%
   ylab("Proportion")
 ```
 
-Finally, we plot the words against their occurance, based on their contributions to the sentiment. 
+Finally, we plot the words against their occurrence, based on their contributions to the sentiment. 
 ```{r plot_by_sentiment}
 tidy_sentiment %>%
   inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
@@ -1112,3 +1111,5 @@ The word `cheap` contributes the most to negative reviews and the word `love` co
 Conducting the analysis, one can safely say that the price and user's experience contribute greatly to the sentiment of a customer's review. If a customer's purchase contains itms that tend to be defective, their review is going to be more negative.
 
 On the other hand, most of the reviews are positive, with a rating between four and five stars. The words in the convetributing to a positive sentiment depict a positive user experience. The user also tends to recommend the product to other potential users if they have a positive experience.
+
+# Appendix A
