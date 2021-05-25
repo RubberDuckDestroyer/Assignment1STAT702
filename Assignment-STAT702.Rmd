@@ -15,12 +15,10 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,
 ```{r setup}
 # Load libraries
 library(tidyverse)
-library(tidytext)
 library(lubridate)
 library(viridis)
+library(tidytext)
 library(anytime)
-library(wordcloud) # word-cloud generator 
-library(reshape2)
 
 # Read in data sets and convert to tibbles
 reviews_data <- read.csv("reviews_data.csv")
@@ -803,8 +801,10 @@ level for a manager.
 # Tokenise, remove stop words
 my_reviews %>% 
   select(document.id, overall, verified, reviewText, summary, date) %>%
+  # Combine summary and review
+  mutate(text = str_c(summary, reviewText, sep= " ")) %>% 
   # Tokenise review
-  unnest_tokens(output = reviewWord, input = reviewText) %>% 
+  unnest_tokens(output = reviewWord, input = text) %>% 
   # Add row number
   group_by(document.id) %>% 
   mutate(word_number = row_number()) %>% 
@@ -843,79 +843,29 @@ tidy_sentiment_gc %>%
 # Sentiment allocation to each word
 tidy_sentiment_gc %>% 
   inner_join(get_sentiments("bing"),  by = c("reviewWord"  = "word")) %>%
-  count(reviewWord, sentiment, sort = TRUE) %>% 
-  ungroup() -> bing_word_counts
+  count(reviewWord, sentiment, sort = TRUE)  -> bing_word_counts
 
-# Plot positive/negative words
-bing_word_counts %>% 
-  group_by(sentiment) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(reviewWord = reorder(reviewWord, n)) %>% 
+tidy_sentiment %>%
+  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
+  count(reviewWord, sentiment, sort = TRUE) %>% 
+  ungroup() -> word_count
+
+bing_word_counts %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(reviewWord, n)) %>%
   ggplot(aes(reviewWord, n, fill = sentiment)) +
   geom_col(show.legend = FALSE) +
-  facet_wrap(~ sentiment, scales = "free_y") +
-  labs(y = "Contribution to sentiment", 
-       x = NULL) + 
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL) +
   coord_flip()
 
-# Generate word cloud
-tidy_sentiment_gc %>% 
-  inner_join(get_sentiments("bing"), by = c("reviewWord" = "word")) %>%
-  count(reviewWord, sentiment, sort = TRUE) %>%
-  acast(reviewWord ~ sentiment, value.var = "n", fill = 0) %>%
-  comparison.cloud(colors = c("darkred", "darkgreen"),
-                   title.colors=c("darkred", "darkgreen"),
-                   max.words = 100, title.size = 2)
-
-# summarise overall score for review
-tidy_sentiment_gc %>% 
-  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
-  count(document.id, sentiment, overall) %>% 
-  spread(sentiment, n, fill = 0) %>%
-  mutate(sentiment = positive - negative, linenumber = row_number()) -> sentiment_summary 
-
-# plot
-sentiment_summary %>% 
-  mutate(sentiment_2 = ifelse(sentiment > 0, "Positive", "Negative")) %>% 
-  ggplot() +
-  geom_bar(aes(x = overall, fill = sentiment_2), position = "fill") +
-  ggtitle("Proportion of Negative and Positive sentiment") +
-  xlab("Overall Rating") +
-  ylab("Proportion")
-
-# remove 'cheap'
-custom_stop_words <- bind_rows(tibble(word = c("pens", "pen", "stars", "cheap"),
-lexicon = c("custom")),
-stop_words)
-
-# sentiment is slightly better when removing 'cheap' from stop words
-
-tidy_sentiment_gc %>% 
-  anti_join(custom_stop_words, by = c("reviewWord" = "word")) %>% 
-  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
-  count(document.id, sentiment, overall) %>% 
-  spread(sentiment, n, fill = 0) %>%
-  mutate(sentiment = positive - negative, linenumber = row_number()) %>% 
-  mutate(sentiment_2 = ifelse(sentiment > 0, "Positive", "Negative")) %>% 
-  ggplot() +
-  geom_bar(aes(x = overall, fill = sentiment_2), position = "fill") +
-  ggtitle("Proportion of Negative and Positive sentiment") +
-  xlab("Overall Rating") +
-  ylab("Proportion")
 
 
-
-###NEXT STEP IS DO SENTIMENT ANALYSIS ON SUMMARY, COMBINE TO IMPROVE ACCURACY
-# Combine summary and review
-  mutate(text = str_c(summary, reviewText, sep= " ")) %>% 
 
 ```
-
-
-
-
-
 Using tidytext, going to tidy the data. First, we select the rows we want to use for the sentiment analysis
 
 ```{r sentiment_data}
