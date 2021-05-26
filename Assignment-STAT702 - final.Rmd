@@ -35,16 +35,35 @@ knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,
                       options(scipen=999))
 ```
 
-```{r setup}
-# Load libraries
-library(tidyverse)
-library(tidytext)
-library(lubridate)
-library(viridis)
-library(anytime)
-library(wordcloud) # word-cloud generator 
-library(reshape2)
+```{r requiredPackages}
+# List of packages
+packages <- c("knitr",
+              "tidyverse",  
+              "tidytext",
+              "lubridate",
+              "viridis",
+              "anytime",
+              "wordcloud", # word-cloud generator                     
+              "reshape2"                     
+              )
+```
 
+```{r installPackages}
+# Find packages that are not installed
+packages_to_install <- packages[!(packages %in% installed.packages()[,"Package"])]
+
+# Uncomment code below to install required packages
+#if(length(packages_to_install) > 0) {
+#install.packages(packages_to_install, dependencies=TRUE)
+#}
+```
+
+```{r loadPackages, message = FALSE, results = "hide"}
+# Load new packages
+sapply(packages, library, character.only=TRUE)
+```
+
+```{r read in data}
 # Read in data sets and convert to tibbles
 reviews_data <- read.csv("reviews_data.csv")
 reviews_data <- as_tibble(reviews_data)
@@ -53,35 +72,7 @@ sales_data <- read.csv("sales_data.csv")
 sales_data <- as_tibble(sales_data)
 ```
 \newpage
-
-**Group 5**: Hitarth Asrani and Genevieve Connell
-
-**Product name**: BIC Round Stic Xtra Life Ballpoint Pen, Medium Point
-(1.0mm), Red, 12-Count
-
-**Sales sku_id**: 219884
-
-**Reviews asin**: B00006IE7J 
-
-# 1 Analysis of Sales Data
-
-## 1(a) For the product (sku_id) which has been assigned to your group (see page 6), compute the total monthly sales from January 2011 -- July 2013. Present your results in an appropriate plot and write 2 -- 3 sentences describing your results.
-
-Hint: This will require some "wrangling" of the variable week. To do
-this, format week as a date and then use the appropriate lubridate
-function to extract the month.
-
-Marking Criteria
-
--   Total monthly sales have been correctly computed and are displayed
-    in an appropriate plot.
-
--   Description of results/plot is correct and provides useful insights.
-
--   Plot is constructed using ggplot2 and has appropriate titles,
-    labels, scales etc.\*\*
-
-## Answer
+# 1. Analysis of Sales Data
 
 ```{r wrangle data}
 # Subset 219844
@@ -139,19 +130,19 @@ monthly_sales %>%
   arrange(desc(total_units_sold)) %>% 
   slice_max(total_units_sold) -> outlier
 ```
+**Product name**: BIC Round Stic Xtra Life Ballpoint Pen, Medium Point
+(1.0mm), Red, 12-Count
+
+**Sales sku_id**: 219884
+
+**Reviews asin**: B00006IE7J 
+
+## 1.a
 
 From Jan 2011 - July 2013,  `r sum(monthly_sales$total_units_sold)` units
-of sku 219844 were sold with a mean monthly sale of
-`r round(mean(monthly_sales$total_units_sold), 1)` and an interquartile range
-of `r round(summary(monthly_sales$total_units_sold)[2], 2)`
-- `r round(summary(monthly_sales$total_units_sold)[5], 2)`.
+of sku 219844 were sold with a monthly mean of `r round(summary(monthly_sales$total_units_sold)[4], 1)`. In the plots below monthly sales do not appear to follow a trend or seasonal pattern. Three months stand out with high sales, these are May 2011, December 2011 and January 2012. The most significant high sales occurred in January 2012 when `r outlier$total_units_sold` units were sold. As shown in the plots below these high monthly sales correspond with a high proportion of stores featuring and/or displaying the product, resulting in unusually high sales.
 
-Monthly sales are plotted below, no trend or seasonal pattern is evident
-in this plot. There are three months with significantly high sales, May
-2011, December 2011 and January 2012. The most significant outlier was
-in January 2012 when `r outlier$total_units_sold` units were sold. As shown in the plots below these high monthly sales correspond with a high proportion of stores featuring and/or displaying the product.
-
-```{r 1a plots}
+```{r 1a monthly sales plot, out.width = "75%"}
 
 # Line plot of monthly sales
 ggplot(monthly_sales) +
@@ -159,7 +150,9 @@ ggplot(monthly_sales) +
   xlab("Date") +
   ylab("Units Sold") +
   ggtitle("Monthly sales for product 219844 (Jan 2011 - July 2013)")
+```
 
+```{r test, figures-side, fig.show="hold", out.width="50%"}
 # Scatter plot showing sales when displayed, featured and not
 sales_219844 %>%
   ggplot() + 
@@ -182,36 +175,16 @@ sales_219844 %>%
 
 ```
 
-## 1(b) The GM Sales wants to know which stores are performing well and which are not, in terms of product sales. For the product (sku_id) which has been assigned to your group, use appropriate summary statistics and plots to investigate sales performance across the stores and write 2 -- 3 paragraphs summarising your findings.
-
-Hint: You will need to decide what it means for a store to be
-"performing well" and how you will evaluate this using the data.
-
-Marking criteria
-
--   Sales performance is clearly defined.
-
--   Written summary includes relevant and appropriate summary statistics
-    and plots.
-
--   Plot/s are constructed using ggplot2 and have appropriate titles,
-    labels, scales etc.
-
--   Descriptions of results and plots are correct and provides useful
-    insights.
-
-## Answer
+## 1.b
 
 All stores have been ranked based on their total sales from Jan 2011 to
 July 2013. The store with the highest total units sold is ranked '1',
 this is store `r store_total_sales$store_id[1]` with
-`r store_total_sales$store_total[1]` units. 
-
-Below is a bar chart showing the total units sold with stores ordered by
-rank. Sales for 2013 are much lower than 2011 and 2012 as only half the
+`r store_total_sales$store_total[1]` units.  Below is a bar chart showing the total units sold with stores ordered by rank. Sales for 2013 are much lower than 2011 and 2012 as only half the
 years data is included.
 
-```{r 1b store totals}
+
+```{r 1b store totals plotted, out.width = "75%"}
 # Bar chart of total yearly sales for stores (ordered by rank)
 
 sales_219844 %>% 
@@ -247,8 +220,11 @@ store_monthly$monthly_performance <- factor(store_monthly$monthly_performance, l
 
 For a more detailed look at store performance monthly sales have been plotted for each store and categorised as 'High', 'Average' or 'Low' performing. These categories are based on the interquartile range for monthly sales. This range is 
 `r summary(store_monthly$monthly_units)[2]` - 
-`r summary(store_monthly$monthly_units)[5]` and captures 50% of all monthly sales. Monthly sales within the range are classified as 'Average', sales greater than `r summary(store_monthly$monthly_units)[5]` are classified as 'High' performing and those below `r summary(store_monthly$monthly_units)[2]` are classified as 'Low' performing. 
+`r summary(store_monthly$monthly_units)[5]` and captures 50% of all monthly sales. Monthly sales within the range are classified as 'Average', sales greater than `r summary(store_monthly$monthly_units)[5]` are classified as 'High' performing and those below `r summary(store_monthly$monthly_units)[2]` are classified as 'Low' performing. Summary statistics for store monthly sales are below.  
 
+|Min|1st Qu.|Median|Mean|3rd Qu.|Max|
+|:--|:------|:-----|:---|:------|:--|
+|`r  summary(store_monthly$monthly_units)[1]`|`r  summary(store_monthly$monthly_units)[2]`|`r  summary(store_monthly$monthly_units)[3]`|`r  round(summary(store_monthly$monthly_units)[4], 1)`|`r  summary(store_monthly$monthly_units)[5]`|`r  summary(store_monthly$monthly_units)[6]`|
 
 ```{r store plots, fig.width=10, fig.height=12}
 # Plots of monthly sales
@@ -268,9 +244,7 @@ store_9872 <- filter(store_monthly, store_id_ranked == "9872")
 ```
 
 An interesting feature of these plots is that some stores have more consistent performance than others. For example store 9112 had 
-`r nrow(filter(store_9112, monthly_performance == "Low"))` low performing months but was ranked at `r store_9112$ranking[1]`, much higher than store 9872 which had only `r nrow(filter(store_9872, monthly_performance == "Low"))` low performing month but was ranked `r store_9872$ranking[1]`. Despite having higher overall sales store 9112 was less reliably successful than store 9872.
-
-Stores with high occurrences of low sales are not reliable and are a source of risk. As an alternative to ranking stores based on their overall sales, stores have been given a ranking based on their consistency. For every high performing month stores are given a score of 3, for every average month a score of 2 and for every low performing month a score of 1. 
+`r nrow(filter(store_9112, monthly_performance == "Low"))` low performing months but was ranked at `r store_9112$ranking[1]`, much higher than store 9872 which had only `r nrow(filter(store_9872, monthly_performance == "Low"))` low performing month but was ranked `r store_9872$ranking[1]`. Stores with high occurrences of low sales are not reliable and are a source of risk to an organisation. 
 
 ```{r 1b consistency rating}
 # create ranking and order stores according to consistency rating
@@ -303,33 +277,11 @@ store_monthly %>%
 sales_219844$overall_performance <- factor(sales_219844$overall_performance, levels=c("High", "Average", "Low"))
 ```
 
-Below is a plot showing stores ordered according to the new consistency rank along with the number of High, Average and Low performing months they achieved. Another plot is included for comparison where stores are ranked according to overall sales. Under the new consistency ranking scheme stores with unreliable performance  such as 9112 drop in rank whilst stores with reliable performance such as 9532 are ranked more highly. 
+As an alternative to ranking stores based on their overall sales, stores have been given a ranking based on their consistency. For every high performing month stores are given a score of 3, for every average month a score of 2 and for every low performing month a score of 1. The plot below shows the stores ordered by this new inconsistency ranking and their overall sales. Under the new consistency ranking scheme stores with unreliable performance  such as 9112 drop in rank whilst stores with reliable performance such as 9532 move up in rank. 
 
 Overall consistency ranking seems most appropriate for sales performance as it rewards stores with reliable monthly sales. Consistency ranking has been used to split stores into three groups of overall performance. The top third of stores (consistency rank 1-9) are evaluated as 'High' performing. The middle third of stores (rank 10-18) are evaluated as having 'Average' performance and stores in the bottom third (rank 19-28) are evaluated as 'Low' performing. 
 
-```{r promotion_plots}
-# Number of months in each performance category for each store
-store_monthly %>% 
-  ggplot() +
-  geom_bar(aes(x = store_id_ranked_consistency, fill = monthly_performance)) +
-  scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle("Number of months in each performance category for each store") +
-  xlab("Store id (ordered by consistency rank)") +
-  ylab("count")
-
-# Number of months in each performance category for each store
-store_monthly %>% 
-  ggplot() +
-  geom_bar(aes(x = store_id_ranked, fill = monthly_performance)) +
-  scale_fill_manual(values = c("#ffaa00","#F20045", "#581845")) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle("Number of months in each performance category for each store") +
-  xlab("Store id (ordered by overall sales)") +
-  ylab("count")
-```
-
-```{r }
+```{r new ranking, out.width="75%"}
 sales_219844%>%
   ggplot()+
   geom_point(aes(x= store_id_ranked_consistency, y = store_total, colour = overall_performance)) +
@@ -340,11 +292,9 @@ sales_219844%>%
   scale_colour_manual(values = c("#ffaa00","#F20045", "#581845"))
 ```
 
-Below is a plot showing that when a product is featured and/or displayed weekly sales are more likely to be high. Weekly performance has been categorised into 'High', 'Average' and 'Low' based on the interquartile range of weekly sales. When the product is featured and/or displayed a higher proportion of weekly sales have been 'High' or 'Average' compared to no promotion. 
+Below is a plot showing that when a product is featured and/or displayed weekly sales are more likely to be high. Weekly performance has been categorised into 'High', 'Average' and 'Low' based on the interquartile range of weekly sales. When the product is featured and/or displayed a higher proportion of weekly sales have been 'High' or 'Average' compared to no promotion. Low performing stores could boost their sales by increasing the number of weeks they promote the product and unreliable stores could ensure high sales by holding regular promotions.
 
-Low performing stores could boost their sales by increasing the number of weeks they promote the product and unreliable stores could ensure high sales by holding regular promotions.
-
-```{r 1b}
+```{r 1b promotion conditions, out.width="50%"}
 # Plot showing weekly performance for each promotion condition
 sales_219844 %>% 
   ggplot() +
@@ -355,21 +305,7 @@ sales_219844 %>%
 
 # Question 2
 
-## (a) The Operations Manager is interested in studying an EOQ model for product 216233, based on sales in 2012. The setup and holding costs are known to be 130 per order and 1.50 per unit per year, respectively.
-
-### i) Determine the best order quantity in such a way that the costs are minimised. Write 1 -- 2 paragraphs summarising your findings.
-
-Marking criteria
-
-• Number of orders during a year, number of days between orders, and the total annual inventory cost are correctly computed and included in the findings. 
-
-• The paragraphs clearly explain
-your findings. 
-
-• Assumptions of the EOQ model are clearly stated
-
-## Answer
-
+## 2.a.i
 ```{r 2ai}
 # Annual demand in 2012 for product 216233
 sales_data %>% 
@@ -399,7 +335,7 @@ Demand for product 216233 has been estimated based on the annual demand from 201
 $$Q^* =  \sqrt{\frac{2kA}{h}}$$
 The optimal order quantity is calculated to be `r Q` with an inventory cycle of `r t` days. This means that every `r t` days `r Q` units are ordered, resulting in `r round(A/Q, 0)` annual orders. This model results in the smallest possible annual inventory cost of `r Tc` with an annual order cost of `r k*A/Q` and an annual holding cost of `r h*Q/2`. This EOQ model is plotted for two cycles below. 
 
-```{r 2ai plot}
+```{r 2ai plot, out.width="75%"}
 plot(0, xlim = c(0, 2*t), ylim = c(0, Q), type = "n",
      xlab = "Time (days)", ylab = "Stock level",
      main = "Inventory cycles for 216233")
@@ -408,21 +344,7 @@ segments(x0 = c(0,t), y0 = 0, x1 = c(0,t), y1 = Q)  # vertical
 
 ```
 
-### ii) The Operations Manager is also interested in studying a model in which backorders are permitted. According to its estimates, the cost of backorders is approximately 5% of the total price (price per unit). Determine the best order quantity in the sense that inventory costs are minimised. Write 1 -- 2 paragraphs summarising your findings and plot the first two inventory cycles.
-
-• The optimum order quantity, maximum level of stock,
-optimum time between orders, proportion of time the company have to take
-backorders, and total annual inventory cost are correctly computed and
-included in your answer. 
-
-• The paragraphs clearly explain your findings.
-
-• Assumptions of the model are clearly stated. 
-
-• The first two inventory cycles are correctly plotted
-
-
-## Answer
+## 2.a.ii
 ```{r 2aii}
 # Annual demand in 2012 for product 216233
 sales_data %>% 
@@ -467,7 +389,7 @@ $$Q^* = \sqrt{\frac{2kA}{h}} \sqrt{\frac{p+h}{p}} $$
 $$S^* = \sqrt{\frac{2kA}{h}} \sqrt{\frac{p}{p+h}} $$
 Optimal order quantity is calculated to be `r Q` with an inventory cycle of `r t` days. This means that every `r t` days `r Q` units are ordered, resulting in `r round(A/Q, 0)` annual orders. The optimum inventory level is `r S` and the proportion of time taking back orders is `r round(pt1, 0)`%. This model results in the smallest possible annual inventory cost of `r round(Tc, 2)` with an annual order cost of `r round(k*A/Q, 2)` and an annual holding cost of `r round(h/2 * S^2/Q, 2)` and annual backorder cost of `r round(p/2 * (Q-S)^2 /Q, 0)`. This EOQ model is plotted for two cycles below. 
 
-```{r 2aii plot}
+```{r 2aii plot, out.width="75%"}
 # Plotting
 plot(0, xlim = c(0, 2*t), ylim = c(-bo, S), type = "n",
      xlab = "Time (days)", ylab = "Stock level",
@@ -477,18 +399,8 @@ segments(x0 = c(0,t), y0 = -bo, x1 = c(0,t), y1 = S)  # vertical
 segments(x0 = c(0,t), y0 = 0, x1 = c(t,2*t), y1 = 0) # horizontal 
 ```
 
-### iii) Plot the inventory cycles associated with the model in part ii and compare with the observed inventory levels in 2012, assuming actual demand during 2012, and the order frequency and order quantity from the model. Write 2 -- 3 sentences describing your plot.
-
-• The inventory levels from the model and data are correctly plotted. 
-
-• Accurate and insightful comments are made about the
-plot. 
-
-• Note: This is a bonus question. The maximum mark that could be
-awarded for this project is 100
-
-## Answer
-```{r 2aiii}
+## 2.a.iii
+```{r 2aiii, out.width="75%"}
 # Calculate weekly sales in 2012 for product 216233
 sales_data %>% 
    mutate(week = as_date(week, format = "%d/%m/%y"),
@@ -526,25 +438,7 @@ The plot above shows the weekly demand from the 2012 sales data plotted with the
 
 Actual demand is not constant and as a result the quantity and frequency found with the back order model is not always appropriate. The model performs best when demand is constant, for example in July. 
 
-## 2b The Operations Manager is considering the option of a multi-period inventory model. The company, as a policy, is not willing to tolerate more than 5% chance of a stock-out. The Operations Manager has estimated that the annual holding cost is 6.50 per unit and the ordering cost is 20.50 per order.
-
-### i.  Calculate a multi-period inventory model for product 216425, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b)above. Write a paragraph explaining the results of your model and the plot/s.
-
-Hint: Use the weekly demand to estimate the demand during a one-week
-lead time.
-
-• The optimal order quantity, safety stock, expected annual cost, orders per years are correctly computed and included in
-your answer. 
-
-• The paragraph clearly explains your findings. 
-
-• The assumption of normality for the demand during a one-week lead time is
-discussed. 
-
-• The weekly average demand of this product is correctly
-plotted and discussed
-
-## Answer
+## 2.b.i.  
 ```{r 2bi}
 # Calculate weekly sales in 2012 for product 216425
 sales_data %>% 
@@ -589,11 +483,6 @@ n <- round(D/Q, 0)
 #  Reorder point r that allows 5% chance of a stock-out
 r <- qnorm(0.95, mean, sd)
 
-# Lead-time distribution plot
-x <- seq(from= 0,to=4000,len=100)
-plot(x,dnorm(x,mean=mean,sd=sd ),type="l",lwd=3,col="black", main = "Lead-Time Distribution", xlab = "Lead-Time Demand for 216425", ylab = " ") +
-  abline(v = r)
-
 # safety stock
 Qs <- r - mean
 
@@ -620,7 +509,12 @@ The expected annual demand is estimated to be `r round(D, 0)`. Given this annual
 the annual costs would only be `r round(tac2, 2)` so the additional cost of holding
 safety stock is `r round((tac - tac2), 2)`.
 
-```{r 2bi plot}
+```{r 2bi plots,figures-side, fig.show="hold", out.width="50%"}
+# Lead-time distribution plot
+x <- seq(from= 0,to=4000,len=100)
+plot(x,dnorm(x,mean=mean,sd=sd ),type="l",lwd=3,col="black", main = "Lead-Time Distribution", xlab = "Lead-Time Demand for 216425", ylab = " ") +
+  abline(v = r)
+
 # Plot observations against estimated lead-time distribution
 weekly_sales %>% 
 ggplot() +
@@ -636,9 +530,7 @@ ggplot() +
 
 ```
 
-## 2.b.ii. Investigate the use of a multi-period inventory model for the product which has been assigned to your group, based on the 2012 sales data. Create plot/s of the weekly average demand of this product. Use the costs stated in part (b) above. Discuss the assumptions of the model and suggest a solution, in case of finding any problems. Write a paragraph explaining the results of your findings and the plot.
-
-## Answer
+## 2.b.ii
 ```{r 2bii}
 # Calculate weekly sales in 2012 for product 219844
 sales_data %>% 
@@ -682,11 +574,6 @@ n <- round(D/Q, 0)
 #  Reorder point r that allows 5% chance of a stock-out
 r <- qnorm(0.95, mean, sd)
 
-# Lead-time distribution plot
-x <- seq(from= 0,to=4000,len=100)
-plot(x,dnorm(x,mean=mean,sd=sd ),type="l",lwd=3,col="black", main = "Lead-Time Distribution", xlab = "Lead-Time Demand for 219844", ylab = " ") +
-  abline(v = r)
-
 # safety stock
 Qs <- r - mean
 
@@ -711,8 +598,20 @@ tac2 <- hc_normal + oc
 
 For this multi-inventory model, demand during a one week lead time has been estimated using the mean and standard deviation of observed data in 2012. Demand has been estimated as a normal distribution with a mean of `r round(mean, 0)` and standard deviation of `r round(sd, 0)`. As the plot below shows this distribution is a very poor fit for the observed data. It is recommended that a more accurate distribution is used for estimating the Lead-Time distribution and reorder point. It is likely that the reorder point calculated with this normal distribution is unnecessarily high. 
 
+The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r round(tac, 2)` per year. If demand was certain
+the annual costs would only be `r round(tac2, 2)` so the additional cost of holding
+safety stock is `r round((tac - tac2),2)`.
 
-```{r 2bii plot}
+```{r 2bii lead-time distribution plot, figures-side, fig.show="hold", out.width="50%"}
+# Lead-time distribution plot
+x <- seq(from= 0,to=4000,len=100)
+plot(x,dnorm(x,mean=mean,sd=sd),
+     type="l",lwd=3,col="black", 
+     main = "Lead-Time Distribution", 
+     xlab = "Lead-Time Demand for 219844", 
+     ylab = " ") +
+  abline(v = r)
+
 # Plot observations against estimated lead-time distribution
 weekly_sales %>% 
 ggplot() +
@@ -725,45 +624,13 @@ ggplot() +
   ggtitle("Lead-Time distributed plotted with actual distribution for 219844") +
   xlab("Quantity") +
   ylab("Density")
-
-# Actual distribution
-weekly_sales %>% 
-ggplot() +
-  geom_histogram(aes(x = quantity, y = ..density..),
-               binwidth = 300, 
-               colour = "black") + 
-  geom_density(aes(x = quantity)) +
-  ggtitle("Lead-Time distributed plotted with actual distribution for 219844") +
-  xlab("Quantity") +
-  ylab("Density")
-weekly_sales %>% 
-ggplot() +
-  geom_histogram(aes(x = quantity, y = ..density..),
-               binwidth = 300, 
-               colour = "black") + 
-  stat_function(fun = dnorm, 
-              args = list(mean = median(weekly_sales$quantity), 
-                          sd = IQR(weekly_sales$quantity))) +
-  ggtitle("Lead-Time distributed plotted with actual distribution for 219844") +
-  xlab("Quantity") +
-  ylab("Density")
-
 ```
 
-The expected annual demand is estimated to be `r round(D, 0)`. Given this annual demand and the costs of holding and reordering stock, the recommended multi-inventory model is to order `r Q` units whenever the order quantity reaches the reorder point of `r round(r, 0)` units. Approximately `r n` orders will be placed per year and safety stock is `r Q`. This approach ensures roughly 95% of the time stock will be sufficient for weekly demand. The expected annual costs are `r round(tac, 2)` per year. If demand was certain
-the annual costs would only be `r round(tac2, 2)` so the additional cost of holding
-safety stock is `r round((tac - tac2),2)`.
+```{r actual distribution plot, figures-side, fig.show="hold", out.width="50%"}
+# New distribution using interquartile range as standard deviation
 
-```{r fixed_plot}
-weekly_sales %>% 
-ggplot() +
-  geom_histogram(aes(x = quantity, y = ..density..),
-               binwidth = 300, 
-               colour = "black") + 
-  geom_density(aes(x = quantity)) +
-  ggtitle("Lead-Time distributed plotted with actual distribution for 219844") +
-  xlab("Quantity") +
-  ylab("Density")
+# Calculate 95% threshold for new distribution
+r1 <- qnorm(0.95, median(weekly_sales$quantity), sd=IQR(weekly_sales$quantity))
 
 weekly_sales %>% 
 ggplot() +
@@ -777,18 +644,20 @@ ggplot() +
   xlab("Quantity") +
   ylab("Density")
 
-```
+x <- seq(from= 0,to=1500,len=100)
+plot(x,dnorm(x,mean=median(weekly_sales$quantity),sd=IQR(weekly_sales$quantity)),
+     type="l",lwd=3,col="black", 
+     main = "Lead-Time Distribution", 
+     xlab = "Lead-Time Demand for 219844", 
+     ylab = " ") +
+  abline(v = r1)
 
+
+```
 
 # Question 3
 
-## a) For the product (asin) that has been assigned to your group, use summary statistics and plots to analyse the overall review rating (overall). Write a paragraph describing your findings to the General Manager - sales.
-Marking Criteria
-• Summary statistics for the overall review rating have been correctly computed and are displayed in appropriate plot/s.
-
-• Descriptions of results and plots are correct and provide useful insights.
-
-• Plot/s are constructed using ggplot2 and have appropriate titles,labels,scalesetc.
+## 3.a
 
 ```{r 3a}
 # Filter data
@@ -804,8 +673,6 @@ my_reviews %>%
   mutate(prop = n/sum(n)*100) -> summary
 ```
 
-## Answer
-
 Reviews were rated from 1-5. The mean rating for product B00006IE7J is 
 `r  round(summary(my_reviews$overall)[4], 1)`. Most reviews were rated highly with 
 `r (round(summary$prop[5], 1))` given 5 and `r (round(summary$prop[4], 1))` given 4 stars.
@@ -818,7 +685,7 @@ Some reviews were verified and others were not. The proportion of ratings given 
 
 Review ratings have been plotted below against time. Most reviews were given between 2014 and 2018. Rating does not appear to be strongly correlated with time. 
 
-```{r 3a plots}
+```{r 3a plots, out.width = "50%"}
 # Plot number of reviews with each rating
 my_reviews %>% 
   ggplot() +
@@ -855,25 +722,10 @@ my_reviews %>%
 ```
 PLotting the number of reviews, we can confirm that the majority of reviews are rated an overall of 5 out of 5.
 
-## Question 3b
-
-## Using the review text (reviewText) and any other variables you think are relevant, investigate the customer sentiment towards, and satisfaction/dissatisfaction with, the product that has been assigned to your group. Your answer should include a word cloud and a sentiment analysis.
-
-• Appropriate methods are used to tidy the text data.
-
-• Correctly construct and interpret a word cloud of the reviewText variable.
-
-• Correctly perform and interpret a sentiment analysis of the reviewText variable.
-
-• Correctly perform and interpret some additional analysis of the reviewText variable, incorporating at least one other variable from the dataset.
-
-• Interpretations of analyses are correct, provide insight and are written at an appropriate
-level for a manager.
-
-## Answer
+## 3b
 Review text has been tokenised and stop words have been removed. Stop words are words such as 'the' and 'it' that hold little information for sentiment analysis. The top 10 words in reviews are plotted below along with their frequency. 
 
-```{r 3b word frequency}
+```{r 3b word frequency, out.width = "50%"}
 # Tokenise, remove stop words
 my_reviews %>% 
   select(document.id, overall, verified, reviewText, summary, date) %>%
@@ -955,7 +807,7 @@ Notably the word 'cheap' is the most commonly used negative word and is used sig
 
 For each review the word sentiments are added together giving the review an overall sentiment score. Below is a plot showing the proportion of reviews in each rating category were given an overall negative or positive sentiment rating. When the word 'cheap' is excluded there is a small change with a decreased proportion of 3-5 ratings classified as negative. This indicates better performance classification.
 
-```{r}
+```{r 3b comparison,figures-side, fig.show="hold", out.width="50%"}
 # summarise overall score for review
 tidy_sentiment_gc %>% 
   inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
@@ -991,172 +843,5 @@ tidy_sentiment_gc %>%
   xlab("Overall Rating") +
   ylab("Proportion")
 ```
-
-####################################################################
-end
-##################################################################
-
-```{r}
-# look at distribution of sentiment
-sentiment_summary %>% 
-  ggplot() +
-  geom_bar(aes(x = sentiment))
-```
-
-```{r}
-# does not appear to be relationship between sentiment and number of words
-my_reviews %>% 
-  mutate(count = str_count(reviewText)) -> count_words
-  
-sentiment_summary %>% 
-  left_join(count_words, by = "document.id") %>% 
-  ggplot() +
-  geom_point(aes(x = sentiment, y = count))
-  
-  
-```
-
-
-Using tidytext, going to tidy the data. First, we select the rows we want to use for the sentiment analysis
-
-```{r sentiment_data}
-sentiment_dat = my_reviews %>% select(document.id, overall, verified, reviewText, summary, date)
-head(sentiment_dat)
-```
-
-We clean the data by using `unnest_tokens` to tokenize the `reviewText` column. We also add a column representing the line number for the data
-
-```{r tidy_data}
-# Tidying
-sentiment_dat %>% 
-  unnest_tokens(output = reviewWord, input = reviewText) -> tidy_sentiment
-
-# Add Row Number
-tidy_sentiment %>% mutate(linenumber = row_number()) -> tidy_sentiment
-head(tidy_sentiment)
-```
-
-Now, we remove the stop words. Our stop words are taken from the `stop_words` dataset included in tidytext. By using an anti_join, we are able to filter out the stop words.
-```{r remove_stop_words}
-# Remove Stop Words
-data("stop_words")
-tidy_sentiment %>% anti_join(stop_words, by = c("reviewWord" = "word")) -> tidy_sentiment
-```
-
-Below, we plot the words in the cleaned dataset, according to the number of times they are present in the dataset.
-```{r preliminary analysis}
-# Count
-tidy_sentiment %>%
-  count(reviewWord, sort= TRUE) %>% 
-  filter(n > 100) %>% 
-  mutate(reviewWord = reorder(reviewWord, n)) %>% 
-  ggplot(aes(reviewWord, n)) +
-  geom_col() + 
-  xlab(NULL) +
-  coord_flip()
-```
-On an initial analysis, we can see that the word `pen(s)` has been used the most. Since this word describes our product, it is used quite often in the reviews. After that, customers mention the price of the item a lot more than any thing else. The rest of the words are used to describe the product and it's features.
-
-
-```{r sentiment_analysis_joy}
-tidy_sentiment %>% 
-  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
-  count(document.id, sentiment, overall) %>% 
-  spread(sentiment, n, fill = 0) %>%
-  mutate(sentiment = positive - negative, linenumber = row_number()) -> joy_sentiment
-head(joy_sentiment)
-```
-The mean sentiment of all reviews is `r mean(joy_sentiment$sentiment)`. 
-
-We plot the 
-```{r sentiment_plot}
-# ordered by overall rating
-joy_sentiment %>% 
-  arrange(overall) %>% 
-  mutate(line_ranked = row_number()) %>% 
-  ggplot() +
-  geom_col(aes(x = line_ranked, sentiment, fill = overall)) + 
-  scale_fill_viridis(option = "A")
-
-# ordered by sentiment
-joy_sentiment %>% 
-  arrange(sentiment) %>% 
-    mutate(line_ranked = row_number()) %>% 
-  ggplot() +
-  geom_col(aes(x = line_ranked, sentiment, fill = overall)) + 
-  scale_fill_viridis(option = "A")
-
-# unordered
-ggplot(joy_sentiment, aes(linenumber, sentiment, fill = overall)) + 
-  geom_col() + 
-  scale_fill_viridis(option = "A")
-
-# distribution
-joy_sentiment %>% 
-  ggplot() +
-  geom_point(aes(x = overall, y = sentiment), position ="jitter")
-
-# box plot of distribution
-joy_sentiment %>% 
-  ggplot() +
-  geom_boxplot(aes(x = sentiment, y= overall, group = overall))
-
-
-```
-
-
-```{r top100_positive}
-# Experimenting, will update soon.
-joy_sentiment %>% slice_max(sentiment, n = 100) -> top10pos
-ggplot(top10pos, aes(overall, sentiment)) + 
-  geom_point(show.legend = FALSE, position = "jitter")
-
-outlier <- my_reviews %>% 
-  filter(document.id == 52767)
-```
-
-
-```{r top100_negative}
-joy_sentiment %>% slice_min(sentiment, n = 100) -> top10neg
-ggplot(top10neg, mapping = aes(overall, sentiment)) + 
-  geom_point()
-  
-```
-
-```{r proportion}
-# Plot showing proportion of negative and positive sentiment allocation to each overall rating class
-
-joy_sentiment %>% 
-  mutate(sentiment_2 = ifelse(sentiment > 0, "Positive", "Negative")) %>% 
-  ggplot() +
-  geom_bar(aes(x = overall, fill = sentiment_2), position = "fill") +
-  ggtitle("Proportion of Negative and Positive sentiment") +
-  xlab("Overall Rating") +
-  ylab("Proportion")
-```
-
-Finally, we plot the words against their occurrence, based on their contributions to the sentiment. 
-```{r plot_by_sentiment}
-tidy_sentiment %>%
-  inner_join(get_sentiments("bing"), by = c("reviewWord"  = "word")) %>% 
-  count(reviewWord, sentiment, sort = TRUE) %>% 
-  ungroup() -> word_count
-word_count %>% 
-  group_by(sentiment) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(reviewWord = reorder(reviewWord, n)) %>% 
-  ggplot(aes(reviewWord, n, fill = sentiment)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~ sentiment, scales = "free_y") +
-  labs(y = "Contribution to sentiment", x = NULL) + 
-  coord_flip()
-  
-```
-The word `cheap` contributes the most to negative reviews and the word `love` contributes most to the positive reviews. 
-
-Conducting the analysis, one can safely say that the price and user's experience contribute greatly to the sentiment of a customer's review. If a customer's purchase contains itms that tend to be defective, their review is going to be more negative.
-
-On the other hand, most of the reviews are positive, with a rating between four and five stars. The words in the convetributing to a positive sentiment depict a positive user experience. The user also tends to recommend the product to other potential users if they have a positive experience.
 
 # Appendix A
