@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.5.23)  26 MAY 2021 13:46
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.5.23)  26 MAY 2021 14:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -680,7 +680,7 @@ File: Assignment-STAT702---final_files/figure-latex/1a monthly sales plot-1.pdf
 
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/1a month
 ly sales plot-1.pdf  used on input line 109.
-(pdftex.def)             Requested size: 352.31538pt x 243.91064pt.
+(pdftex.def)             Requested size: 281.85518pt x 195.1305pt.
 <Assignment-STAT702---final_files/figure-latex/test, figures-side-1.pdf, id=123
 , 469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/test, figures-side-1.pdf Gr
@@ -730,7 +730,7 @@ File: Assignment-STAT702---final_files/figure-latex/new ranking-1.pdf Graphic f
 ile (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/new ranking-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/new rank
-ing-1.pdf  used on input line 169.
+ing-1.pdf  used on input line 168.
 (pdftex.def)             Requested size: 352.31538pt x 243.91064pt.
 <Assignment-STAT702---final_files/figure-latex/1b promotion conditions-1.pdf, i
 d=170, 469.755pt x 325.215pt>
@@ -739,19 +739,19 @@ df Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/1b promotion conditions-1.pd
 f>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/1b promo
-tion conditions-1.pdf  used on input line 180.
+tion conditions-1.pdf  used on input line 179.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 [6 <./Assignment-STAT702---final_files/figure-latex/new ranking-1.pdf> <./Assig
 nment-STAT702---final_files/figure-latex/1b promotion conditions-1.pdf>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 200.
+(Font)              <10.95> on input line 199.
 <Assignment-STAT702---final_files/figure-latex/2ai plot-1.pdf, id=187, 469.755p
 t x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/2ai plot-1.pdf Graphic file
  (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/2ai plot-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/2ai plot
--1.pdf  used on input line 207.
+-1.pdf  used on input line 206.
 (pdftex.def)             Requested size: 352.31538pt x 243.91064pt.
 [7 <./Assignment-STAT702---final_files/figure-latex/2ai plot-1.pdf>]
 <Assignment-STAT702---final_files/figure-latex/2aii plot-1.pdf, id=205, 469.755
@@ -760,7 +760,7 @@ File: Assignment-STAT702---final_files/figure-latex/2aii plot-1.pdf Graphic fil
 e (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/2aii plot-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/2aii plo
-t-1.pdf  used on input line 236.
+t-1.pdf  used on input line 235.
 (pdftex.def)             Requested size: 352.31538pt x 243.91064pt.
 <Assignment-STAT702---final_files/figure-latex/2aiii-1.pdf, id=206, 469.755pt x
  325.215pt>
@@ -768,11 +768,11 @@ File: Assignment-STAT702---final_files/figure-latex/2aiii-1.pdf Graphic file (t
 ype pdf)
 <use Assignment-STAT702---final_files/figure-latex/2aiii-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/2aiii-1.
-pdf  used on input line 241.
+pdf  used on input line 251.
 (pdftex.def)             Requested size: 352.31538pt x 243.91064pt.
 [8 <./Assignment-STAT702---final_files/figure-latex/2aii plot-1.pdf>]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 2
-74.
+73.
 (c:/Users/genev/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -783,7 +783,7 @@ f Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/2bi plots,figures-side-1.pdf
 >
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/2bi plot
-s,figures-side-1.pdf  used on input line 278.
+s,figures-side-1.pdf  used on input line 277.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 <Assignment-STAT702---final_files/figure-latex/2bi plots,figures-side-2.pdf, id
 =219, 469.755pt x 325.215pt>
@@ -792,181 +792,205 @@ f Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/2bi plots,figures-side-2.pdf
 >
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/2bi plot
-s,figures-side-2.pdf  used on input line 279.
+s,figures-side-2.pdf  used on input line 278.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 
-Overfull \hbox (2.43216pt too wide) in paragraph at lines 278--280
+Overfull \hbox (2.43216pt too wide) in paragraph at lines 277--279
 [][] [] 
  []
 
-[9 <./Assignment-STAT702---final_files/figure-latex/2aiii-1.pdf>]
+[9 <./Assignment-STAT702---final_files/figure-latex/2aiii-1.pdf> <./Assignment-
+STAT702---final_files/figure-latex/2bi plots,figures-side-1.pdf> <./Assignment-
+STAT702---final_files/figure-latex/2bi plots,figures-side-2.pdf>]
 <Assignment-STAT702---final_files/figure-latex/2bii lead-time distribution plot
-, figures-side-1.pdf, id=231, 469.755pt x 325.215pt>
+, figures-side-1.pdf, id=243, 469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/2bii lead-time distribution
  plot, figures-side-1.pdf Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/2bii lead-time distribution 
 plot, figures-side-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/2bii lea
-d-time distribution plot, figures-side-1.pdf  used on input line 307.
+d-time distribution plot, figures-side-1.pdf  used on input line 306.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 <Assignment-STAT702---final_files/figure-latex/2bii lead-time distribution plot
-, figures-side-2.pdf, id=232, 469.755pt x 325.215pt>
+, figures-side-2.pdf, id=244, 469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/2bii lead-time distribution
  plot, figures-side-2.pdf Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/2bii lead-time distribution 
 plot, figures-side-2.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/2bii lea
-d-time distribution plot, figures-side-2.pdf  used on input line 308.
+d-time distribution plot, figures-side-2.pdf  used on input line 307.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 
-Overfull \hbox (2.43216pt too wide) in paragraph at lines 307--309
+Overfull \hbox (2.43216pt too wide) in paragraph at lines 306--308
 [][] [] 
  []
 
 <Assignment-STAT702---final_files/figure-latex/actual distribution plot, figure
-s-side-1.pdf, id=233, 469.755pt x 325.215pt>
+s-side-1.pdf, id=245, 469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/actual distribution plot, f
 igures-side-1.pdf Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/actual distribution plot, fi
 gures-side-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/actual d
-istribution plot, figures-side-1.pdf  used on input line 314.
+istribution plot, figures-side-1.pdf  used on input line 313.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 <Assignment-STAT702---final_files/figure-latex/actual distribution plot, figure
-s-side-2.pdf, id=234, 469.755pt x 325.215pt>
+s-side-2.pdf, id=246, 469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/actual distribution plot, f
 igures-side-2.pdf Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/actual distribution plot, fi
 gures-side-2.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/actual d
-istribution plot, figures-side-2.pdf  used on input line 315.
+istribution plot, figures-side-2.pdf  used on input line 314.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 
-Overfull \hbox (2.43216pt too wide) in paragraph at lines 314--316
+Overfull \hbox (2.43216pt too wide) in paragraph at lines 313--315
 [][] [] 
  []
 
-[10 <./Assignment-STAT702---final_files/figure-latex/2bi plots,figures-side-1.p
-df> <./Assignment-STAT702---final_files/figure-latex/2bi plots,figures-side-2.p
-df> <./Assignment-STAT702---final_files/figure-latex/2bii lead-time distributio
+[10 <./Assignment-STAT702---final_files/figure-latex/2bii lead-time distributio
 n plot, figures-side-1.pdf> <./Assignment-STAT702---final_files/figure-latex/2b
-ii lead-time distribution plot, figures-side-2.pdf>]
-<Assignment-STAT702---final_files/figure-latex/3a plots-1.pdf, id=262, 469.755p
+ii lead-time distribution plot, figures-side-2.pdf> <./Assignment-STAT702---fin
+al_files/figure-latex/actual distribution plot, figures-side-1.pdf> <./Assignme
+nt-STAT702---final_files/figure-latex/actual distribution plot, figures-side-2.
+pdf>]
+<Assignment-STAT702---final_files/figure-latex/3a plots-1.pdf, id=274, 469.755p
 t x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3a plots-1.pdf Graphic file
  (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3a plots-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3a plots
--1.pdf  used on input line 345.
+-1.pdf  used on input line 344.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
-<Assignment-STAT702---final_files/figure-latex/3a plots-2.pdf, id=263, 469.755p
+<Assignment-STAT702---final_files/figure-latex/3a plots-2.pdf, id=275, 469.755p
 t x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3a plots-2.pdf Graphic file
  (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3a plots-2.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3a plots
--2.pdf  used on input line 346.
+-2.pdf  used on input line 345.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
-<Assignment-STAT702---final_files/figure-latex/3a plots-3.pdf, id=264, 469.755p
+<Assignment-STAT702---final_files/figure-latex/3a plots-3.pdf, id=276, 469.755p
 t x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3a plots-3.pdf Graphic file
  (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3a plots-3.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3a plots
--3.pdf  used on input line 347.
+-3.pdf  used on input line 346.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
-<Assignment-STAT702---final_files/figure-latex/3a plots-4.pdf, id=265, 469.755p
+<Assignment-STAT702---final_files/figure-latex/3a plots-4.pdf, id=277, 469.755p
 t x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3a plots-4.pdf Graphic file
  (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3a plots-4.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3a plots
--4.pdf  used on input line 348.
+-4.pdf  used on input line 347.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 
-Overfull \hbox (2.43216pt too wide) in paragraph at lines 345--351
+Overfull \hbox (2.43216pt too wide) in paragraph at lines 344--348
 [][] []
  []
 
 
-Overfull \hbox (2.43216pt too wide) in paragraph at lines 345--351
-[] []
+Overfull \hbox (2.43216pt too wide) in paragraph at lines 344--348
+[] [] 
  []
 
-[11 <./Assignment-STAT702---final_files/figure-latex/actual distribution plot, 
-figures-side-1.pdf> <./Assignment-STAT702---final_files/figure-latex/actual dis
-tribution plot, figures-side-2.pdf> <./Assignment-STAT702---final_files/figure-
-latex/3a plots-1.pdf> <./Assignment-STAT702---final_files/figure-latex/3a plots
--2.pdf>]
-<Assignment-STAT702---final_files/figure-latex/3b word frequency-1.pdf, id=294,
+<Assignment-STAT702---final_files/figure-latex/3b word frequency-1.pdf, id=278,
  469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3b word frequency-1.pdf Gra
 phic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3b word frequency-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3b word 
-frequency-1.pdf  used on input line 360.
+frequency-1.pdf  used on input line 357.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
-<Assignment-STAT702---final_files/figure-latex/3b word sentiment-1.pdf, id=295,
+[11 <./Assignment-STAT702---final_files/figure-latex/3a plots-1.pdf> <./Assignm
+ent-STAT702---final_files/figure-latex/3a plots-2.pdf> <./Assignment-STAT702---
+final_files/figure-latex/3a plots-3.pdf> <./Assignment-STAT702---final_files/fi
+gure-latex/3a plots-4.pdf>]
+<Assignment-STAT702---final_files/figure-latex/3b word sentiment-1.pdf, id=306,
  469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3b word sentiment-1.pdf Gra
 phic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3b word sentiment-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3b word 
-sentiment-1.pdf  used on input line 378.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-<Assignment-STAT702---final_files/figure-latex/3b word sentiment-2.pdf, id=296,
- 469.755pt x 325.215pt>
-File: Assignment-STAT702---final_files/figure-latex/3b word sentiment-2.pdf Gra
-phic file (type pdf)
-<use Assignment-STAT702---final_files/figure-latex/3b word sentiment-2.pdf>
+sentiment-1.pdf  used on input line 376.
+(pdftex.def)             Requested size: 352.31538pt x 243.91064pt.
+<Assignment-STAT702---final_files/figure-latex/3b word cloud-1.pdf, id=307, 469
+.755pt x 325.215pt>
+File: Assignment-STAT702---final_files/figure-latex/3b word cloud-1.pdf Graphic
+ file (type pdf)
+<use Assignment-STAT702---final_files/figure-latex/3b word cloud-1.pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3b word 
-sentiment-2.pdf  used on input line 379.
-(pdftex.def)             Requested size: 469.75386pt x 325.2142pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 378--380
-[][]
- []
-
-[12 <./Assignment-STAT702---final_files/figure-latex/3a plots-3.pdf> <./Assignm
-ent-STAT702---final_files/figure-latex/3a plots-4.pdf> <./Assignment-STAT702---
-final_files/figure-latex/3b word frequency-1.pdf>] [13 <./Assignment-STAT702---
-final_files/figure-latex/3b word sentiment-1.pdf>]
+cloud-1.pdf  used on input line 378.
+(pdftex.def)             Requested size: 352.31538pt x 243.91064pt.
+[12 <./Assignment-STAT702---final_files/figure-latex/3b word frequency-1.pdf> <
+./Assignment-STAT702---final_files/figure-latex/3b word sentiment-1.pdf>]
 <Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-1.pdf
-, id=328, 469.755pt x 325.215pt>
+, id=323, 469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-
 1.pdf Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-1
 .pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3b compa
-rison,figures-side-1.pdf  used on input line 397.
+rison,figures-side-1.pdf  used on input line 396.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 <Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-2.pdf
-, id=329, 469.755pt x 325.215pt>
+, id=324, 469.755pt x 325.215pt>
 File: Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-
 2.pdf Graphic file (type pdf)
 <use Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-2
 .pdf>
 Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/3b compa
-rison,figures-side-2.pdf  used on input line 398.
+rison,figures-side-2.pdf  used on input line 397.
 (pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
 
-Overfull \hbox (2.43216pt too wide) in paragraph at lines 397--399
+Overfull \hbox (2.43216pt too wide) in paragraph at lines 396--410
+[][] []
+ []
+
+[13 <./Assignment-STAT702---final_files/figure-latex/3b word cloud-1.pdf> <./As
+signment-STAT702---final_files/figure-latex/3b comparison,figures-side-1.pdf> <
+./Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-2.pd
+f>]
+<Assignment-STAT702---final_files/figure-latex/top positive and negative sentim
+ent scores, figures-side-1.pdf, id=345, 469.755pt x 325.215pt>
+File: Assignment-STAT702---final_files/figure-latex/top positive and negative s
+entiment scores, figures-side-1.pdf Graphic file (type pdf)
+<use Assignment-STAT702---final_files/figure-latex/top positive and negative se
+ntiment scores, figures-side-1.pdf>
+Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/top posi
+tive and negative sentiment scores, figures-side-1.pdf  used on input line 411.
+
+(pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
+<Assignment-STAT702---final_files/figure-latex/top positive and negative sentim
+ent scores, figures-side-2.pdf, id=346, 469.755pt x 325.215pt>
+File: Assignment-STAT702---final_files/figure-latex/top positive and negative s
+entiment scores, figures-side-2.pdf Graphic file (type pdf)
+<use Assignment-STAT702---final_files/figure-latex/top positive and negative se
+ntiment scores, figures-side-2.pdf>
+Package pdftex.def Info: Assignment-STAT702---final_files/figure-latex/top posi
+tive and negative sentiment scores, figures-side-2.pdf  used on input line 412.
+
+(pdftex.def)             Requested size: 234.87692pt x 162.6071pt.
+
+Overfull \hbox (2.43216pt too wide) in paragraph at lines 411--413
 [][] [] 
  []
 
-[14 <./Assignment-STAT702---final_files/figure-latex/3b word sentiment-2.pdf>] 
-[15 <./Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side
--1.pdf> <./Assignment-STAT702---final_files/figure-latex/3b comparison,figures-
-side-2.pdf>] (./Assignment-STAT702---final.aux)
+[14 <./Assignment-STAT702---final_files/figure-latex/top positive and negative 
+sentiment scores, figures-side-1.pdf> <./Assignment-STAT702---final_files/figur
+e-latex/top positive and negative sentiment scores, figures-side-2.pdf>] [15] (
+./Assignment-STAT702---final.aux)
 Package rerunfilecheck Info: File `Assignment-STAT702---final.out' has not chan
 ged.
 (rerunfilecheck)             Checksum: 167F9F3B3DFB0528AFA9703839E6E828;1173.
  ) 
 Here is how much of TeX's memory you used:
- 12580 strings out of 480796
- 203141 string characters out of 5902997
+ 12602 strings out of 480796
+ 205363 string characters out of 5902997
  488936 words of memory out of 5000000
- 29691 multiletter control sequences out of 15000+600000
+ 29711 multiletter control sequences out of 15000+600000
  441299 words of font info for 57 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  69i,12n,79p,638b,385s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -984,10 +1008,10 @@ texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/genev/AppData/Roaming/Tiny
 TeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/genev/AppData/Roaming/
 TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/genev/AppData/Roam
 ing/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on Assignment-STAT702---final.pdf (15 pages, 595074 bytes).
+Output written on Assignment-STAT702---final.pdf (15 pages, 625883 bytes).
 PDF statistics:
- 400 PDF objects out of 1000 (max. 8388607)
- 296 compressed objects within 3 object streams
+ 413 PDF objects out of 1000 (max. 8388607)
+ 304 compressed objects within 4 object streams
  44 named destinations out of 1000 (max. 500000)
- 235 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 245 words of extra memory for PDF output out of 10000 (max. 10000000)
 

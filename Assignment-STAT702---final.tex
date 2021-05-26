@@ -106,7 +106,7 @@ sold. As shown in the plots below these high monthly sales correspond
 with a high proportion of stores featuring and/or displaying the
 product, resulting in unusually high sales.
 
-\includegraphics[width=0.75\linewidth]{Assignment-STAT702---final_files/figure-latex/1a monthly sales plot-1}
+\includegraphics[width=0.6\linewidth]{Assignment-STAT702---final_files/figure-latex/1a monthly sales plot-1}
 
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/test, figures-side-1}
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/test, figures-side-2}
@@ -141,7 +141,6 @@ Min & 1st Qu. & Median & Mean & 3rd Qu. & Max \\
 \end{longtable}
 
 \includegraphics{Assignment-STAT702---final_files/figure-latex/store plots-1.pdf}
-
 An interesting feature of these plots is that some stores have more
 consistent performance than others. For example store 9112 had 5 low
 performing months but was ranked at 4, much higher than store 9872 which
@@ -238,9 +237,7 @@ of 709. This EOQ model is plotted for two cycles below.
 \hypertarget{a.iii}{%
 \subsection{2.a.iii}\label{a.iii}}
 
-\includegraphics[width=0.75\linewidth]{Assignment-STAT702---final_files/figure-latex/2aiii-1}
-
-The plot above shows the weekly demand from the 2012 sales data plotted
+The plot below shows the weekly demand from the 2012 sales data plotted
 with the optimum order frequency, 13 days and optimum order quantity
 6040 from the Optimum Backorder Model. Stock starts at the optimum
 inventory level 4867, decreases with every weekly sale quantity from
@@ -250,6 +247,8 @@ and quantity.
 Actual demand is not constant and as a result the quantity and frequency
 found with the back order model is not always appropriate. The model
 performs best when demand is constant, for example in July.
+
+\includegraphics[width=0.75\linewidth]{Assignment-STAT702---final_files/figure-latex/2aiii-1}
 
 \hypertarget{b.i.}{%
 \subsection{2.b.i.}\label{b.i.}}
@@ -321,8 +320,8 @@ safety stock is 4382.95.
 \subsection{3.a}\label{a-1}}
 
 Reviews were rated from 1-5. The mean rating for product B00006IE7J is
-4.7. Most reviews were rated highly with 79 given 5 and 13.4 given 4
-stars.
+4.7. Most reviews were rated highly with 79\% given 5 stars and 13.4\%
+given 4 stars.
 
 \begin{longtable}[]{@{}llllll@{}}
 \toprule
@@ -346,8 +345,6 @@ correlated with time.
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/3a plots-2}
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/3a plots-3}
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/3a plots-4}
-PLotting the number of reviews, we can confirm that the majority of
-reviews are rated an overall of 5 out of 5.
 
 \hypertarget{b-1}{%
 \subsection{3b}\label{b-1}}
@@ -358,6 +355,7 @@ sentiment analysis. The top 10 words in reviews are plotted below along
 with their frequency.
 
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/3b word frequency-1}
+
 In the plot above we can see a few words that can be considered as stop
 words. Words like \texttt{pen} and \texttt{stars} are not very valuable
 to the sentiment. These words are removed from the data set as well.
@@ -375,8 +373,9 @@ positive sentiment and low ratings indicate negative sentiment. The top
 10 frequently used negative and positive words are presented below along
 with a word cloud of the top 100 words.
 
-\includegraphics{Assignment-STAT702---final_files/figure-latex/3b word sentiment-1.pdf}
-\includegraphics{Assignment-STAT702---final_files/figure-latex/3b word sentiment-2.pdf}
+\includegraphics[width=0.75\linewidth]{Assignment-STAT702---final_files/figure-latex/3b word sentiment-1}
+
+\includegraphics[width=0.75\linewidth]{Assignment-STAT702---final_files/figure-latex/3b word cloud-1}
 
 Notably the word `cheap' is the most commonly used negative word and is
 used significantly more frequently than any other negative word. `Cheap'
@@ -396,8 +395,34 @@ negative. This indicates better performance classification.
 
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-1}
 \includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/3b comparison,figures-side-2}
+The graphs below plot the top 100 negative and top 100 positive
+sentiment values against the actual overall values specified by the
+reviewers. In the positive reviews, majority of the data is classified
+as an overall rating of 3 or above. A single outlier exists. The outlier
+has an overall value of 1 and a positive sentiment associated to it. In
+the negative reviews, an outlier can be seen, where the overall rating
+is 5 but the sentiment given to the data is very negative. Additionally,
+a lot of data rated 5 stars has been given a negative sentiment. This
+can be attributed to the data not being balanced or the reviews having
+too many words. Both can affect the final analysis in different ways and
+must be considered as a way to improve sentiment analysis on the given
+data.
+
+\includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/top positive and negative sentiment scores, figures-side-1}
+\includegraphics[width=0.5\linewidth]{Assignment-STAT702---final_files/figure-latex/top positive and negative sentiment scores, figures-side-2}
+\newpage
 
 \hypertarget{appendix-a}{%
 \section{Appendix A}\label{appendix-a}}
+
+\textbf{Hitarth 40\%} I contributed by solving question 1 and 3 in this
+project. I also compared my answers to my partner's question1 answers to
+make sure we had done the right thing. I initially tackled question 3
+and asked Genevieve to help me out with beautifying some of the plots. I
+was happy to brainstorm solutions and ideas with my partner on anything
+we worked on. Finally, I was able to help add attention to detail with
+the final formatting of our document.
+
+\textbf{Genevieve 60\%}
 
 \end{document}

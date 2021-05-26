@@ -142,7 +142,7 @@ monthly_sales %>%
 From Jan 2011 - July 2013,  `r sum(monthly_sales$total_units_sold)` units
 of sku 219844 were sold with a monthly mean of `r round(summary(monthly_sales$total_units_sold)[4], 1)`. In the plots below monthly sales do not appear to follow a trend or seasonal pattern. Three months stand out with high sales, these are May 2011, December 2011 and January 2012. The most significant high sales occurred in January 2012 when `r outlier$total_units_sold` units were sold. As shown in the plots below these high monthly sales correspond with a high proportion of stores featuring and/or displaying the product, resulting in unusually high sales.
 
-```{r 1a monthly sales plot, out.width = "75%"}
+```{r 1a monthly sales plot, out.width = "60%"}
 
 # Line plot of monthly sales
 ggplot(monthly_sales) +
@@ -216,6 +216,11 @@ store_monthly %>%
 
 # Order performance variable
 store_monthly$monthly_performance <- factor(store_monthly$monthly_performance, levels=c("High", "Average", "Low"))
+
+
+# Data subset for analysis
+store_9112 <- filter(store_monthly, store_id_ranked == "9112")
+store_9872 <- filter(store_monthly, store_id_ranked == "9872")
 ```
 
 For a more detailed look at store performance monthly sales have been plotted for each store and categorised as 'High', 'Average' or 'Low' performing. These categories are based on the interquartile range for monthly sales. This range is 
@@ -237,12 +242,7 @@ store_monthly %>%
   ggtitle("Monthly performance classified for each store (ordered by rank") + 
   xlab("Month") +
   ylab("Units sold")
-
-# Data subset for analysis
-store_9112 <- filter(store_monthly, store_id_ranked == "9112")
-store_9872 <- filter(store_monthly, store_id_ranked == "9872")
 ```
-
 An interesting feature of these plots is that some stores have more consistent performance than others. For example store 9112 had 
 `r nrow(filter(store_9112, monthly_performance == "Low"))` low performing months but was ranked at `r store_9112$ranking[1]`, much higher than store 9872 which had only `r nrow(filter(store_9872, monthly_performance == "Low"))` low performing month but was ranked `r store_9872$ranking[1]`. Stores with high occurrences of low sales are not reliable and are a source of risk to an organisation. 
 
@@ -334,7 +334,6 @@ Demand for product 216233 has been estimated based on the annual demand from 201
 
 $$Q^* =  \sqrt{\frac{2kA}{h}}$$
 The optimal order quantity is calculated to be `r Q` with an inventory cycle of `r t` days. This means that every `r t` days `r Q` units are ordered, resulting in `r round(A/Q, 0)` annual orders. This model results in the smallest possible annual inventory cost of `r Tc` with an annual order cost of `r k*A/Q` and an annual holding cost of `r h*Q/2`. This EOQ model is plotted for two cycles below. 
-
 ```{r 2ai plot, out.width="75%"}
 plot(0, xlim = c(0, 2*t), ylim = c(0, Q), type = "n",
      xlab = "Time (days)", ylab = "Stock level",
@@ -389,7 +388,7 @@ $$Q^* = \sqrt{\frac{2kA}{h}} \sqrt{\frac{p+h}{p}} $$
 $$S^* = \sqrt{\frac{2kA}{h}} \sqrt{\frac{p}{p+h}} $$
 Optimal order quantity is calculated to be `r Q` with an inventory cycle of `r t` days. This means that every `r t` days `r Q` units are ordered, resulting in `r round(A/Q, 0)` annual orders. The optimum inventory level is `r S` and the proportion of time taking back orders is `r round(pt1, 0)`%. This model results in the smallest possible annual inventory cost of `r round(Tc, 2)` with an annual order cost of `r round(k*A/Q, 2)` and an annual holding cost of `r round(h/2 * S^2/Q, 2)` and annual backorder cost of `r round(p/2 * (Q-S)^2 /Q, 0)`. This EOQ model is plotted for two cycles below. 
 
-```{r 2aii plot, out.width="75%"}
+```{r 2aii plot, out.width="75%", message = FALSE}
 # Plotting
 plot(0, xlim = c(0, 2*t), ylim = c(-bo, S), type = "n",
      xlab = "Time (days)", ylab = "Stock level",
@@ -400,6 +399,9 @@ segments(x0 = c(0,t), y0 = 0, x1 = c(t,2*t), y1 = 0) # horizontal
 ```
 
 ## 2.a.iii
+The plot below shows the weekly demand from the 2012 sales data plotted with the optimum order frequency, `r t` days and optimum order quantity `r Q` from the Optimum Backorder Model. Stock starts at the optimum inventory level `r S`,  decreases with every weekly sale quantity from 2012 data and increases with inventory added at the optimum frequency and quantity. 
+
+Actual demand is not constant and as a result the quantity and frequency found with the back order model is not always appropriate. The model performs best when demand is constant, for example in July. 
 ```{r 2aiii, out.width="75%"}
 # Calculate weekly sales in 2012 for product 216233
 sales_data %>% 
@@ -434,12 +436,8 @@ ggplot(inventory2) +
 
 ```
 
-The plot above shows the weekly demand from the 2012 sales data plotted with the optimum order frequency, `r t` days and optimum order quantity `r Q` from the Optimum Backorder Model. Stock starts at the optimum inventory level `r S`,  decreases with every weekly sale quantity from 2012 data and increases with inventory added at the optimum frequency and quantity. 
-
-Actual demand is not constant and as a result the quantity and frequency found with the back order model is not always appropriate. The model performs best when demand is constant, for example in July. 
-
 ## 2.b.i.  
-```{r 2bi}
+```{r 2bi, message = FALSE}
 # Calculate weekly sales in 2012 for product 216425
 sales_data %>% 
    mutate(week = as_date(week, format = "%d/%m/%y"),
@@ -632,6 +630,14 @@ ggplot() +
 # Calculate 95% threshold for new distribution
 r1 <- qnorm(0.95, median(weekly_sales$quantity), sd=IQR(weekly_sales$quantity))
 
+x <- seq(from= 0,to=1500,len=100)
+plot(x,dnorm(x,mean=median(weekly_sales$quantity),sd=IQR(weekly_sales$quantity)),
+     type="l",lwd=3,col="black", 
+     main = "Lead-Time Distribution", 
+     xlab = "Lead-Time Demand for 219844", 
+     ylab = " ") +
+  abline(v = r1)
+
 weekly_sales %>% 
 ggplot() +
   geom_histogram(aes(x = quantity, y = ..density..),
@@ -643,16 +649,6 @@ ggplot() +
   ggtitle("Lead-Time distributed plotted with actual distribution for 219844") +
   xlab("Quantity") +
   ylab("Density")
-
-x <- seq(from= 0,to=1500,len=100)
-plot(x,dnorm(x,mean=median(weekly_sales$quantity),sd=IQR(weekly_sales$quantity)),
-     type="l",lwd=3,col="black", 
-     main = "Lead-Time Distribution", 
-     xlab = "Lead-Time Demand for 219844", 
-     ylab = " ") +
-  abline(v = r1)
-
-
 ```
 
 # Question 3
@@ -675,7 +671,7 @@ my_reviews %>%
 
 Reviews were rated from 1-5. The mean rating for product B00006IE7J is 
 `r  round(summary(my_reviews$overall)[4], 1)`. Most reviews were rated highly with 
-`r (round(summary$prop[5], 1))` given 5 and `r (round(summary$prop[4], 1))` given 4 stars.
+`r (round(summary$prop[5], 1))`% given 5 stars and `r (round(summary$prop[4], 1))`% given 4 stars.
 
 |Min|1st Qu.|Median|Mean|3rd Qu.|Max|
 |:--|:------|:-----|:---|:------|:--|
@@ -720,7 +716,6 @@ my_reviews %>%
   xlab("Date") +
   ylab("Rating")
 ```
-PLotting the number of reviews, we can confirm that the majority of reviews are rated an overall of 5 out of 5.
 
 ## 3b
 Review text has been tokenised and stop words have been removed. Stop words are words such as 'the' and 'it' that hold little information for sentiment analysis. The top 10 words in reviews are plotted below along with their frequency. 
@@ -751,6 +746,7 @@ tidy_sentiment_gc %>%
   coord_flip() +
   ggtitle("Frequency words were used in reviews")
 ```
+
 In the plot above we can see a few words that can be considered as stop words. Words like `pen` and `stars` are not very valuable to the sentiment. These words are removed from the data set as well.
 
 ```{r remove_custom_stopwords}
@@ -767,7 +763,7 @@ Notably the top words are 'pens', 'stars' and 'pen'. The product that is being a
 
 The remaining words are given a sentiment rating, high ratings indicate positive sentiment and low ratings indicate negative sentiment. The top 10 frequently used negative and positive words are presented below along with a word cloud of the top 100 words.
 
-```{r 3b word sentiment}
+```{r 3b word sentiment, out.width= "75%"}
 # Sentiment allocation to each word
 tidy_sentiment_gc %>% 
   inner_join(get_sentiments("bing"),  by = c("reviewWord"  = "word")) %>%
@@ -785,7 +781,9 @@ bing_word_counts %>%
   labs(y = "Contribution to sentiment", 
        x = NULL) + 
   coord_flip()
+```
 
+```{r 3b word cloud, out.width= "75%"}
 # Generate word cloud
 tidy_sentiment_gc %>% 
   inner_join(get_sentiments("bing"), by = c("reviewWord" = "word")) %>%
@@ -843,5 +841,32 @@ tidy_sentiment_gc %>%
   xlab("Overall Rating") +
   ylab("Proportion")
 ```
+The graphs below plot the top 100 negative and top 100 positive sentiment values against the actual overall values specified by the reviewers.
+In the positive reviews, majority of the data is classified as an overall rating of 3 or above. A single outlier exists. The outlier has an overall value of 1 and a positive sentiment associated to it.
+In the negative reviews, an outlier can be seen, where the overall rating is 5 but the sentiment given to the data is very negative. Additionally, a lot of data rated 5 stars has been given a negative sentiment. This can be attributed to the data not being balanced or the reviews having too many words. Both can affect the final analysis in different ways and must be considered as a way to improve sentiment analysis on the given data.
+
+```{r top positive and negative sentiment scores, figures-side, fig.show="hold", out.width="50%"}
+sentiment_summary %>% 
+  slice_max(sentiment, n = 100) %>% 
+  ggplot(aes(overall, sentiment)) +
+  geom_point(position = "jitter") +
+  ggtitle("Top 100 positive sentiment values") +
+  xlab("Sentiment score") +
+  ylab("Overall rating")
+
+sentiment_summary %>% 
+  slice_min(sentiment, n = 100) %>% 
+  ggplot(aes(overall, sentiment)) +
+  geom_point(position = "jitter") +
+  ggtitle("Top 100 negative sentiment values") +
+  xlab("Sentiment score") +
+  ylab("Overall rating")
+```
+\newpage
 
 # Appendix A
+
+**Hitarth 40%**
+I contributed by solving question 1 and 3 in this project. I also compared my answers to my partner's question1 answers to make sure we had done the right thing. I initially tackled question 3 and asked Genevieve to help me out with beautifying some of the plots. I was happy to brainstorm solutions and ideas with my partner on anything we worked on. Finally, I was able to help add  attention to detail with the final formatting of our document.
+
+**Genevieve 60%**
